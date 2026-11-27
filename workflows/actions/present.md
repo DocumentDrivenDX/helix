@@ -3,7 +3,8 @@
 You are turning governed artifacts into a deck for people outside the
 project. The contract is `workflows/modes/present.md`; this file is the step
 detail. Scripts under `scripts/` beside the skill are optional: every step
-names what to do by hand on a host without them.
+names what to do by hand on a host without them, in full in
+`workflows/references/without-scripts.md`.
 
 ## Action input
 
@@ -226,9 +227,11 @@ takeaway sentence, the titles-only outline, assumptions and gaps, gate
 results, and where the files are. Report material unresolved choices and
 limits of evidence without assigning a lifecycle label. External distribution
 and explicit domain sign-off require the applicable authorization. Before a
-deliverable is issued, pin the sources: run
-`skills/helix/scripts/pin-sources.py pin <deliverable>` so every source link
-carries a `rev`, then `check` it and validate with `--tier publish`. An issued
+deliverable is issued, pin the sources so every source link carries a `rev`:
+run `uv run --script scripts/pin-sources.py pin <deliverable>` (beside the
+skill), then `check` it and validate with `--tier publish`. Without the
+scripts, pin, check, and validate by hand as
+`workflows/references/without-scripts.md` sets out, and say so. An issued
 deliverable is reproducible from those pinned revisions; later edits to a
 source never change it, and updating a source means a new revision of the
 deliverable.

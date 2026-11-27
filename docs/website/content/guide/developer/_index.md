@@ -35,7 +35,7 @@ A team never runs a HELIX command. They ask their agent runtime, and the runtime
 
 ## The parts
 
-The repository has nine parts, and the table shows which one a change belongs in. The first five are the portable content that every runtime receives. The other four support, package, or publish that content.
+The repository has nine parts, and the table shows which one a change belongs in. The first five are HELIX's portable source content. A source checkout has all of it; the generated plugin package and Genie bundle carry only part of the schema and methodology files (`artifact-schema.md` is not included). The other four support, package, or publish that content.
 
 | Part | Path | Change it when |
 |------|------|----------------|
@@ -53,7 +53,7 @@ Three boundaries decide most placements:
 
 - The skill body contains no runtime-specific commands. Runtime detail goes under `docs/install/`: `docs/install/ddx.md`, `docs/install/databricks-genie.md`, and the Claude Code section of `docs/install/README.md`.
 - The skill reads the catalog when a mode needs a template or rule; it does not bundle catalog content. A new artifact type is a catalog change, not a skill change.
-- Repository scripts are helpers for maintaining and packaging content. They do not define methodology behaviour, so a behaviour change belongs in `workflows/` or the skill.
+- Repository scripts are helpers for maintaining and packaging content. They do not define methodology behaviour, so a behaviour change belongs in `workflows/` or the skill. Scripts beside the skill are optional, and each has a by-hand route in `workflows/references/without-scripts.md`.
 
 The `.helix.yml` marker at the repository root declares the active flows and the root each flow may write under.
 
@@ -110,7 +110,7 @@ The source in `workflows/` and `skills/helix/` is never forked across packages. 
 
 Read [Architecture](/guide/developer/architecture/) for the system and deployment views, then the [Developer guide](/guide/developer/developer-guide/) for setup and day-to-day tasks.
 
-Before you change a part, run its checks. The `justfile` at the root wraps them:
+Before you change a part, run its checks. The `justfile` at the root wraps them, and all Python in them runs through uv:
 
 ```sh
 just test                     # the main suite, including test-skills

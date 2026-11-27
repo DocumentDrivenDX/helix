@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-validator="python3 scripts/validate_surface_leakage.py"
+validator="uvpy scripts/validate_surface_leakage.py"
 fixtures="tests/fixtures/surface-leakage"
 
 tmp_output="$(mktemp)"

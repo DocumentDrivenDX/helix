@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pyyaml>=6"]
+# ///
 """check-deliverable — deterministic gate for a HELIX deliverable script.
 
 Checks a deck / one-pager / brief script (the `deliverable` artifact type)
@@ -23,7 +27,7 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:  # pragma: no cover
-    print("check-deliverable.py needs PyYAML (python3 -m pip install pyyaml)", file=sys.stderr)
+    print("error: PyYAML is not available; run this script with `uv run --script`, or work by hand (workflows/references/without-scripts.md)", file=sys.stderr)
     sys.exit(2)
 
 LABEL_TITLES = {

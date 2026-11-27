@@ -40,9 +40,9 @@ Regenerate published site content after changing artifact types, project
 artifacts, or resource summaries:
 
 ```bash
-python3 scripts/generate-reference.py
+uv run --script scripts/generate-reference.py
 uv run --project tools/documentor documentor record --root .
-python3 scripts/publish-resources.py
+uv run --locked python scripts/publish-resources.py
 ```
 
 ## The Seven Activities

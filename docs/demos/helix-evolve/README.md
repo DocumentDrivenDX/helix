@@ -21,14 +21,14 @@ new ADR, and decompose downstream artifacts before any code changes.
 ## Rebuild the cast
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-evolve/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-evolve/session.jsonl
 bash tests/validate-demos.sh
 ```
 
 ## Re-capture from a live agent
 
 ```
-python3 scripts/demos/capture_session.py helix-evolve \
+uv run --locked python scripts/demos/capture_session.py helix-evolve \
     --prompt "Use /helix evolve to add OAuth login alongside the existing API-key auth. Thread the change through the artifact graph from the highest-authority artifact down." \
     --fixture docs/demos/helix-evolve/fixture/
 ```

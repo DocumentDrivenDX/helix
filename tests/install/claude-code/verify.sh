@@ -88,7 +88,7 @@ if [[ -z "$INIT_LINE" ]]; then
   head -20 "$PROBE_OUT"
   rm -f "$PROBE_OUT"
 else
-  python3 - "$INIT_LINE" <<'PY' || { rm -f "$PROBE_OUT"; exit 1; }
+  uv run --quiet --no-project python - "$INIT_LINE" <<'PY' || { rm -f "$PROBE_OUT"; exit 1; }
 import json, sys
 init = json.loads(sys.argv[1])
 plugins = init.get("plugins", [])

@@ -1,23 +1,23 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-26/claude-independent-reader/9ea60e329361e8db -->
-<!-- helix:source pyproject.toml sha256:839c29e5c94a5664 -->
-<!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/test.yml sha256:7ca950a8833cb294 -->
-<!-- helix:source ../../scripts/release-version.py sha256:abae9d19948ac6e5 -->
-<!-- helix:source ../../.github/workflows/release-ui.yml sha256:749110da960fb612 -->
-<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:5a66e080c8ecc1b1 -->
-<!-- helix:source ../../.github/workflows/release-tag.yml sha256:480303d12dfda08e -->
-<!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:859a4661f0e50d93 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-27/claude-independent-reader/f97268c061f067c8 -->
+<!-- helix:source pyproject.toml sha256:0b5a4c6ffca5d95d -->
+<!-- helix:source justfile sha256:70068f1bcd44b7d9 -->
+<!-- helix:source ../../.github/workflows/test.yml sha256:ae3601a7067d768e -->
+<!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
+<!-- helix:source ../../.github/workflows/release-ui.yml sha256:83b8be272f7302ca -->
+<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:20e6696c169591b2 -->
+<!-- helix:source ../../.github/workflows/release-tag.yml sha256:9f88f30d4a26d418 -->
+<!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:1037eabd32707393 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
 <!-- helix:source src/documentor/__init__.py sha256:70b80c2697080f92 -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:40fbab08748e28bb -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
-<!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
-<!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
-<!-- helix:source ../../scripts/sync_references.py sha256:3b3710d02aa78a81 -->
+<!-- helix:source tests/validate-package.sh sha256:04d10a286b09eec7 -->
+<!-- helix:source tests/validate-publish.sh sha256:3fa6ea492e8a50c5 -->
+<!-- helix:source ../../scripts/sync_references.py sha256:eb553df2940ca254 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 <!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
@@ -62,7 +62,7 @@ uv run documentor check --root ../some-repo
 
 ## Repository map
 
-The package is in `src/documentor`, the tests are in `tests`, and the design records are in `docs/helix`. [Architecture](architecture.md) explains how the parts fit together.
+Code is in `src/documentor`, tests in `tests`, and design records in `docs/helix`. [Architecture](architecture.md) explains how the parts fit together.
 
 | Path | What it holds |
 |---|---|
@@ -171,6 +171,8 @@ A new packaged file the CLI needs at run time belongs in this list. `just test-p
 
 To make a change, edit the module or catalog file, add an assertion to the matching test script, and run that suite before the full suite. HELIX's [AGENTS.md](../../../../../AGENTS.md) and [CONTRIBUTING.md](../../../../../CONTRIBUTING.md) set the contributor rules.
 
+All Python runs through uv; also run `just test-python-policy` from the HELIX root.
+
 1. Create a branch from `main`:
 
    ```sh
@@ -235,9 +237,9 @@ Obtain a separately authorized release scope from the HELIX release owner before
 
 2. In GitHub's Releases UI, create a new `vX.Y.Z` tag on current `main`, write the release notes, and publish. The UI preparation workflow returns the release to draft and opens a version bump PR. GitHub Actions must have permission to create PRs in the repository.
 
-3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script updates the three plugin manifests and the package versions, runtime versions, and lockfiles for documentor and draftsync. It refreshes current guide source fingerprints; stale fingerprints still require review.
+3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script updates the three plugin manifests and the package versions, runtime versions, and lockfiles for documentor. It refreshes current guide source fingerprints; stale fingerprints still require review.
 
-   The tag workflow checks all nine version fields. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
+   The tag workflow checks all six version fields. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
 
    It dispatches bundle publication, install smoke tests, and the Pages build. Bundle publication validates versions before any build or upload and publishes the draft with new assets and its original notes.
 
@@ -246,7 +248,7 @@ Obtain a separately authorized release scope from the HELIX release owner before
    For local preparation, run from the HELIX root and open a `chore(release): vX.Y.Z` PR:
 
    ```sh
-   python3 scripts/release-version.py vX.Y.Z --write
+   uv run --locked python scripts/release-version.py vX.Y.Z --write
    ```
 
 4. Check the release from the tag. The output starts with `documentor X.Y.Z`:
@@ -254,8 +256,6 @@ Obtain a separately authorized release scope from the HELIX release owner before
    ```sh
    uvx --from git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/documentor documentor --version
    ```
-
-Verify draftsync with `uvx --from 'git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/draftsync' draftsync --help`.
 
 The version guard checks the requested tag on manual runs. It returns invalid UI releases to draft without deleting tags. A valid published release is not retagged automatically; corrections normally use a new patch version.
 

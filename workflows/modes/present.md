@@ -61,7 +61,8 @@ the Brief, whatever the mapping suggests: `scope`, `breadth` (`survey` or
 
 Rendering is documentor's (the optional host tool, `tools/documentor/`;
 `documentor doctor` reports what this host can do). The gates stay beside
-this skill: `scripts/check-deliverable.py` and `scripts/corpus-inventory.py`.
+this skill: `scripts/check-deliverable.py` and `scripts/corpus-inventory.py`,
+each with a by-hand form in `workflows/references/without-scripts.md`.
 Without documentor or its toolchain the mode stops after the script: `##
 Render` records which targets were not produced and why, and the gate runs
 on the produced set.

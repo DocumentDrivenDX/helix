@@ -40,13 +40,14 @@ brief; it never overrides a client's requirements or decisions. A
    stance (recommended, conditional, watch, avoid), rationale, the pinned
    assessments and criteria it rests on, `since` and `review_by` dates, and
    `approved_by` with `approved_on` once a named person approves; until then
-   it is proposed. Run `assessment-tables.py --write` for the table.
+   it is proposed. Write the table with
+   `assessment-tables.py`, or by hand (`workflows/references/without-scripts.md`).
 7. **Record weights as data** when the paper weighs criteria: a `weights:`
    list, each entry a criterion id that a `supported_by` assessment has a
    finding for, a weight of `decisive`, `important`, or `minor`, and a
    one-line reason. A weight is the paper's judgement, so it is never
    written into an assessment or `criteria.yml`, and never as a number. The
-   same command writes the Decision Criteria table.
+   same command, or the same by-hand rules, makes the Decision Criteria table.
 8. **Add a Transition Path** only when the position displaces something
    already in use.
 9. **Pin the evidence** before publishing.

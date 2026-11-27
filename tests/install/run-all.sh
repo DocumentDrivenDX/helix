@@ -167,7 +167,7 @@ if [[ -z "${DATABRICKS_HOST:-}" || -z "${DATABRICKS_TOKEN:-}" ]] && [[ -z "${DAT
     echo "SKIP: Databricks credentials not set (set TEST_GENIE=1 to require)"
   fi
 else
-  if python3 "$TESTS_DIR/genie/install.py" && python3 "$TESTS_DIR/genie/verify.py"; then
+  if uv run --script "$TESTS_DIR/genie/install.py" && uv run --script "$TESTS_DIR/genie/verify.py"; then
     echo "PASS: genie install + verify"
   else
     echo "FAIL: genie scenario"

@@ -9,10 +9,13 @@
 
 FROM node:22-bookworm-slim
 
+# Python in these scenarios runs through uv.
+COPY --from=ghcr.io/astral-sh/uv:0.12.7 /uv /uvx /usr/local/bin/
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl git python3 python3-yaml \
+        ca-certificates curl git python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install OpenAI Codex CLI.

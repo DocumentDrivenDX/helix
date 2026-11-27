@@ -1,0 +1,28 @@
+#!/bin/sh
+# The check docsync runs before landing a draft's edits (`apply --guard`): one
+# file in, exit 0 when its generated tables match its front matter, 1 when they
+# do not, 2 when the check cannot run (docsync then refuses the edit).
+#
+# docsync passes a copy outside the repository, where the files the check reads
+# from the flow root (criteria.yml, keys.yml) cannot be found. HELIX_GUARD_DOC
+# names the document being edited; the copy is checked from beside it. Without
+# it the check would fail on both sides of an edit, and docsync would let a
+# changed table through, so it is required.
+if [ $# -ne 1 ] || [ ! -f "$1" ]; then
+  echo "usage: HELIX_GUARD_DOC=<document> assessment-tables-guard FILE" >&2
+  exit 2
+fi
+doc=${HELIX_GUARD_DOC:-}
+if [ ! -f "$doc" ] || [ "$(basename "$doc")" != "$(basename "$1")" ]; then
+  echo "assessment-tables-guard: set HELIX_GUARD_DOC to the document being edited" >&2
+  exit 2
+fi
+probe=$(mktemp "$(dirname "$doc")/.helix-guard.XXXXXX") || exit 2
+trap 'rm -f "$probe"' EXIT
+trap 'exit 2' HUP INT TERM
+cp "$1" "$probe" || exit 2
+if ! command -v uv >/dev/null 2>&1; then
+  echo "assessment-tables-guard: uv is required to run the table check" >&2
+  exit 2
+fi
+uv run --quiet --script "$(dirname "$0")/assessment-tables.py" "$probe" >&2

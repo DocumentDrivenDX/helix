@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pyyaml>=6"]
+# ///
 """Validate a HELIX artifact instance against its catalog type's `validation:` block.
 
 Usage:
@@ -65,7 +69,8 @@ as warnings; frontmatter checks stay blocking. Any other status runs every check
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage or
 resolution error (instance unreadable, type or catalog unresolvable).
 
-Requires PyYAML (`python3 -c 'import yaml'`); fails with a clear message otherwise.
+Run it with `uv run --script`; the header declares its dependencies. Without uv, do the
+checks by hand (workflows/references/without-scripts.md).
 """
 from __future__ import annotations
 
@@ -85,6 +90,9 @@ try:
     import yaml
 except ImportError:  # pragma: no cover
     yaml = None
+
+NEEDS_UV = ("PyYAML is not available. Run this script as `uv run --script validate-instance.py`, "
+            "or do the checks by hand (workflows/references/without-scripts.md)")
 
 # Uppercase ID prefixes that identify a type when the frontmatter has no
 # `ddx.type`. Catalog `id_format.prefix` entries are merged over this table.
@@ -863,7 +871,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if yaml is None:
-        die("PyYAML is required (python3 -m pip install pyyaml)")
+        die(NEEDS_UV)
     if not args.instance.is_file():
         die(f"instance not found: {args.instance}")
 

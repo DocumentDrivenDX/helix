@@ -12,6 +12,8 @@
 
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/lib/uvpy.sh"
+
 OUT_DIR="dist/genie-bundle/helix"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,7 +37,7 @@ if [[ ! -f scripts/sync_references.py ]]; then
 fi
 
 # Validate SKILL.md frontmatter: name must equal 'helix'.
-python3 - "$SRC_SKILL" <<'PY'
+uvpy - "$SRC_SKILL" <<'PY'
 import sys
 import re
 
@@ -79,7 +81,7 @@ echo "✓ copied SKILL.md → $OUT_DIR/SKILL.md"
 cp -Rf skills/helix/scripts "$OUT_DIR/scripts"
 echo "✓ copied skill scripts → $OUT_DIR/scripts/"
 
-python3 scripts/sync_references.py "$OUT_DIR/references" >/dev/null
+uvpy scripts/sync_references.py "$OUT_DIR/references" >/dev/null
 echo "✓ generated workflows catalog → $OUT_DIR/references/"
 
 # Report what we built.
@@ -96,4 +98,4 @@ echo "  activities:  $ACTIVITY_COUNT"
 echo "  concerns:    $CONCERN_COUNT"
 echo "  total files: $FILE_COUNT"
 echo
-echo "Next: python scripts/install-genie.py --bundle $OUT_DIR"
+echo "Next: uv run --script scripts/install-genie.py --bundle $OUT_DIR"

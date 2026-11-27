@@ -113,7 +113,7 @@ sed -i.bak 's/kind=essay/kind=explanation/' "$page"
 
 # A page that matches a pattern the project's handling forbids is blocked; so is writing outside
 # publish.scope. Both need PyYAML, like the prose check.
-if python3 -c 'import yaml' 2>/dev/null; then
+if uv run --no-project python -c 'import yaml' 2>/dev/null; then
   cp "$project/.helix.yml" "$tmpdir/helix.bak"
   printf 'handling:\n  patterns:\n    - "\\\\b[0-9]{3}-[0-9]{2}-[0-9]{4}\\\\b"\n' >>"$project/.helix.yml"
   printf '\nA claimant such as 123-45-6789 appears here.\n' >>"$page"
@@ -132,7 +132,7 @@ if python3 -c 'import yaml' 2>/dev/null; then
   grep -Eq "^BLOCKING +outside-scope .*outside publish.scope svc" "$tmpdir/out" || fail "expected outside-scope: $(cat "$tmpdir/out")"
   cp "$tmpdir/helix.bak" "$project/.helix.yml"
   # With no publish.out, pages go to guide/ beside the HELIX root, however deep it is.
-  python3 - <<'PY'
+  uv run --no-project python - <<'PY'
 from documentor.lib import publish_out
 assert publish_out({"flows": [{"root": "pipeline/docs/helix/"}]}) == "pipeline/docs/guide"
 assert publish_out({"flows": [{"root": "docs/helix"}]}) == "docs/guide"
@@ -148,7 +148,7 @@ grep -Eq "^WARNING +unmapped .*ADR-001-one-container.md" "$tmpdir/out" || fail "
 cp "$project/.helix.yml" "$tmpdir/helix-ignore.bak"
 sed -i.bak 's|^  flows: \[developer\]|  flows: [developer]\n  ignore: ["{helix}/02-design/adr/ADR-001-*.md"]|' "$project/.helix.yml"
 run check "$project/docs/guide" >"$tmpdir/out" 2>&1 || true
-if python3 -c 'import yaml' 2>/dev/null; then
+if uv run --no-project python -c 'import yaml' 2>/dev/null; then
   grep -q "ADR-001-one-container.md" "$tmpdir/out" && fail "publish.ignore should silence the ADR: $(cat "$tmpdir/out")"
 fi
 cp "$tmpdir/helix-ignore.bak" "$project/.helix.yml"

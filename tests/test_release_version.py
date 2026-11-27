@@ -19,8 +19,7 @@ class ReleaseVersionTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         for name in ['.claude-plugin/plugin.json', '.codex-plugin/plugin.json',
                      '.claude-plugin/marketplace.json', 'tools/documentor/pyproject.toml',
-                     'tools/documentor/src/documentor/__init__.py', 'tools/documentor/uv.lock',
-                     'tools/draftsync/pyproject.toml', 'tools/draftsync/uv.lock', 'tools/draftsync/src/draftsync/__init__.py']:
+                     'tools/documentor/src/documentor/__init__.py', 'tools/documentor/uv.lock']:
             target = self.root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
@@ -30,7 +29,6 @@ class ReleaseVersionTests(unittest.TestCase):
         self.assertEqual(release.synchronize(self.root, 'v1.2.3'), [])
         self.assertEqual(json.loads((self.root / '.codex-plugin/plugin.json').read_text())['version'], '1.2.3')
         self.assertIn('__version__ = "1.2.3"', (self.root / 'tools/documentor/src/documentor/__init__.py').read_text())
-        self.assertIn('__version__ = "1.2.3"', (self.root / 'tools/draftsync/src/draftsync/__init__.py').read_text())
 
     def test_rejects_each_stale_surface_without_writing(self):
         release.synchronize(self.root, 'v1.2.3', write=True)
@@ -66,7 +64,7 @@ class ReleaseVersionTests(unittest.TestCase):
 
     def test_publisher_validates_before_build_and_upload(self):
         workflow = (ROOT / '.github/workflows/release-genie-bundle.yml').read_text()
-        check = workflow.index('run: python3 scripts/release-version.py')
+        check = workflow.index('run: uv run --locked python scripts/release-version.py')
         self.assertLess(check, workflow.index('run: bash scripts/build-genie-bundle.sh'))
         self.assertLess(check, workflow.index('uses: softprops/action-gh-release'))
         self.assertNotIn('continue-on-error:', workflow)
@@ -84,7 +82,7 @@ class ReleaseVersionTests(unittest.TestCase):
         workflow = (ROOT / '.github/workflows/release-ui.yml').read_text()
         self.assertIn('types: [published]', workflow)
         self.assertLess(workflow.index('--draft=true'), workflow.index('gh pr create'))
-        self.assertIn('python3 scripts/release-version.py "$TAG" --write', workflow)
+        self.assertIn('uv run --locked python scripts/release-version.py "$TAG" --write', workflow)
         self.assertIn('git rev-parse origin/main', workflow)
         self.assertIn('gh workflow run test.yml', workflow)
 

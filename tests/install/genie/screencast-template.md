@@ -9,8 +9,8 @@ the three verification prompts answered correctly.
 1. **Terminal frame (~60 seconds)**:
    - Visible prompt: `bash scripts/build-genie-bundle.sh` and its
      output (the "Genie bundle built: ..." summary)
-   - `python tests/install/genie/install.py` and its output
-   - `python tests/install/genie/verify.py` and its output (asserting
+   - `uv run --script tests/install/genie/install.py` and its output
+   - `uv run --script tests/install/genie/verify.py` and its output (asserting
      all checks pass)
 2. **Browser frame (~3 minutes)**:
    - Open Databricks workspace
@@ -20,7 +20,7 @@ the three verification prompts answered correctly.
    - Run prompt 2 (catalog reachable); wait for full response
    - Run prompt 3 (smoke routing); wait for full response
 3. **Closing terminal frame (~15 seconds)**:
-   - Re-run `python tests/install/genie/verify.py` to show the install
+   - Re-run `uv run --script tests/install/genie/verify.py` to show the install
      is still healthy after the chat exchanges
 
 ## File naming

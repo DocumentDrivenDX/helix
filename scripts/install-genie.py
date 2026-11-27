@@ -232,7 +232,7 @@ def main() -> int:
         grant_users_read(w, parent)
         grant_users_read(w, target)
 
-    print(f"\nNext: python scripts/verify-genie.py --target {target}")
+    print(f"\nNext: uv run --script scripts/verify-genie.py --target {target}")
     return 0
 
 

@@ -14,14 +14,15 @@ Every page of this site was made from the repository by documentor, and is rebui
 | Continuous integration on GitHub Actions | no | 0.60 | `.github/workflows/*.yml ~ /^jobs:/` |
 | Tasks in a justfile, a Makefile, or npm scripts | no | 0.60 | `justfile` |
 | A command line installed from pyproject (Typer or Click) | no | 0.40 | `**/pyproject.toml ~ /^\[project\.scripts\]/` |
+| A Python library others import | no | 0.20 | `pyproject.toml ~ /^\[project\]/` |
 
 ## The pages
 
 | Reader | Page | Kind | Made by | Evaluated by | Sources | State |
 |---|---|---|---|---|---:|---|
-| developer | Overview | explanation | agent-opus | agent-sonnet | 8 | stale |
-| developer | Architecture | explanation | agent-opus | agent-sonnet | 14 | stale |
-| developer | Developer guide | how-to | a person (adopted) | agent-sonnet | 3 | stale |
+| developer | Overview | explanation | agent-opus | claude-independent-reader | 8 | current |
+| developer | Architecture | explanation | agent-opus | claude-independent-reader | 14 | current |
+| developer | Developer guide | how-to | a person (adopted) | claude-independent-reader | 3 | current |
 | developer | Documentor | reference | documentor's own guide | — | — | delegated |
 
 ## The architecture views

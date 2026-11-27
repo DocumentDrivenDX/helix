@@ -6,7 +6,7 @@
 # and opens a pull request; the written pages it lists as stale are the agent's work.
 #
 # The runner needs network access to github.com to fetch documentor. On a GitHub Enterprise instance
-# without it, install documentor from your private index instead (`pip install documentor`) and drop
+# without it, install documentor from your private index instead (`uv tool install documentor`) and drop
 # the `--from` argument.
 name: guide
 on:

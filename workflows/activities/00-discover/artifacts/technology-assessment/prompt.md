@@ -33,8 +33,9 @@ Decision Brief begins.
 4. **Compare** in one table, cells citing sources. To keep the ratings as
    data, put them in an `assessment:` front matter block (criteria ids from
    `criteria.yml` at the flow root, a one-line finding or a stated gap for every criterion
-   and subject) and run `assessment-tables.py --write`; the Criteria and
-   Comparison tables are generated from it.
+   and subject); the Criteria and Comparison tables are made from it. Write
+   them with `uv run --script scripts/assessment-tables.py --write <file>` (beside
+   the skill), or by hand as `workflows/references/without-scripts.md` sets out.
 5. **Write findings** only where criteria separate the technologies.
 6. **Record disagreement.** When two sources conflict, cite both, link with
    `contradicts`, and leave the conflict open until new evidence settles it.

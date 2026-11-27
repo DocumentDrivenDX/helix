@@ -21,7 +21,7 @@ sound, and do not echo their instructions into the reader's page.
   means stop; there is nothing to present yet.
 - Declare the scope, breadth, angle, must-cover and must-omit concepts, and
   max messages in the Brief. Then inventory the whole scope
-  (`scripts/corpus-inventory.py`, or the by-hand recipe in
+  (`scripts/corpus-inventory.py`; by hand per `workflows/references/without-scripts.md`, or the recipe in
   `actions/present.md`) and cluster what recurs into concept groups,
   typically five to nine and more when the corpus is wide, named in the
   audience's words and ranked by authority. Every group ends up in the

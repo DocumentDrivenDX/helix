@@ -1,18 +1,18 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-20/agent-sonnet/a5bb26f7de8c31d9 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-11-27/claude-independent-reader/34e0bd51b61a83cc -->
 <!-- helix:source docs/helix/02-design/architecture.md#level-1-system-context sha256:20eaaf2abca95251 -->
 <!-- helix:source docs/helix/02-design/architecture.md#level-2-container-diagram sha256:4d37f71ee8b0bb90 -->
 <!-- helix:source docs/helix/02-design/architecture.md#artifact-schema-as-runtime-contract sha256:ca201550b5e7655b -->
 <!-- helix:source docs/helix/02-design/architecture.md#packaging sha256:2ff820d456c362b4 -->
 <!-- helix:source docs/helix/02-design/architecture.md#quality-attributes sha256:a7f863b67c0f0f9d -->
 <!-- helix:source docs/helix/02-design/architecture.md#ddx-as-one-reference-runtime sha256:b5b467abedab6e0c -->
-<!-- helix:source docs/helix/01-frame/prd.md sha256:8f17e7a1466098f3 -->
+<!-- helix:source docs/helix/01-frame/prd.md sha256:73e016fa86590f85 -->
 <!-- helix:source docs/install/README.md#what-you-get sha256:e50570f47c6119a5 -->
 <!-- helix:source docs/install/README.md#no-fork-policy sha256:91bb66393b9e49f5 -->
-<!-- helix:source scripts/sync_references.py sha256:3b3710d02aa78a81 -->
-<!-- helix:source .github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->
-<!-- helix:source .github/workflows/pages.yml sha256:6b506daacdc39414 -->
-<!-- helix:source .github/workflows/test.yml sha256:765c7d505cc24d0e -->
-<!-- helix:source justfile sha256:4270805de0a79b8f -->
+<!-- helix:source scripts/sync_references.py sha256:eb553df2940ca254 -->
+<!-- helix:source .github/workflows/release-genie-bundle.yml sha256:20e6696c169591b2 -->
+<!-- helix:source .github/workflows/pages.yml sha256:4f3bc7d26ac37eb2 -->
+<!-- helix:source .github/workflows/test.yml sha256:ae3601a7067d768e -->
+<!-- helix:source justfile sha256:3266f6dbdcb7f37b -->
 # Architecture
 
 ## Context
@@ -90,7 +90,7 @@ The skill never writes to a tracker, queue, or evidence store. When a mode produ
 
 `workflows/artifact-schema.md` is the contract a runtime must honour to claim HELIX compatibility. A compliant runtime must read `meta.yml`, resolve `ddx.id` and `ddx.depends_on`, treat the schema file as the authority, and preserve unknown fields. Runtimes may add extension fields under `ddx:`, but other runtimes must be able to ignore them.
 
-A runtime needs three primitives to run the skill: read markdown files, write markdown files, and search files by path or pattern. Shell execution is optional.
+A runtime needs three primitives to run the skill: read markdown files, write markdown files, and search files by path or pattern. Shell execution is optional. Where a host can run the scripts beside the skill, it runs them with `uv run --script`; elsewhere, `workflows/references/without-scripts.md` gives each check by hand.
 
 Repository scripts under `scripts/` maintain and package content. They are not an operator-facing CLI and do not define methodology behaviour.
 
@@ -119,7 +119,7 @@ Each command exits with status 0 and leaves the bundle under `dist/`. Install an
 
 ```sh
 just genie-install   # needs DATABRICKS_HOST and DATABRICKS_TOKEN
-just genie-verify    # offline static checks, no chat API
+just genie-verify    # needs the same variables; static checks of the workspace install, no chat API
 ```
 
 Releases run from GitHub Actions on `v*` tags:
@@ -128,11 +128,11 @@ Releases run from GitHub Actions on `v*` tags:
 |----------|------|
 | `.github/workflows/release-tag.yml` | Tags `main` when a `chore(release):` pull request merges |
 | `.github/workflows/release-version-guard.yml` | Fails a tag whose plugin manifests declare a different version |
-| `.github/workflows/release-genie-bundle.yml` | Attaches the Genie bundle, plugin package, and `genie-install` to the release |
+| `.github/workflows/release-genie-bundle.yml` | After the Test workflow passes, attaches the Genie bundle, plugin package, and `genie-install` to the release, then publishes the plugin package to the `DocumentDrivenDX/plugins` marketplace |
 | `.github/workflows/pages.yml` | Builds the Hugo microsite and deploys it to GitHub Pages |
 | `.github/workflows/install-smoke.yml` | Runs the install scenarios against the published release |
 
-The microsite is a read-only projection of `workflows/` and `docs/helix/`, not a source of truth. Pages deploys after the `Test` workflow succeeds on `main`, and on every `v*` tag.
+The microsite is a read-only projection of `workflows/` and `docs/helix/`, not a source of truth. Pages deploys after the `Test` workflow succeeds on `main` when the tip commit changed a site input, and also on every `v*` tag, weekly, and on manual dispatch.
 
 documentor, under `tools/documentor/`, is the host tool behind HELIX's guide mode. The `documentor` job in `.github/workflows/test.yml` runs on changes to the tool or to the catalog files it packages. That job runs `just test` inside `tools/documentor/`, which checks the packaged catalog against `workflows/` and then runs every suite. It then runs `documentor check --root .` to confirm documentor's own guide is current.
 
@@ -157,7 +157,7 @@ Run the repository's test suite before you change a part:
 just test
 ```
 
-The `test` recipe runs a fixed list of test recipes, and it exits with status 0 when every one of them passes. The list includes the four portability and packaging checks below. It leaves out `just test-documentor` and `just test-website-generated`, so run those separately when you change documentor or the generated site.
+The `test` recipe runs a fixed list of test recipes, and it exits with status 0 when every one of them passes. Its `test-python-policy` recipe checks that Python runs through uv and that every skill script has a by-hand route. The list includes the four portability and packaging checks below. It leaves out `just test-documentor` and `just test-website-generated`, so run those separately when you change documentor or the generated site.
 
 ```sh
 just test-documentor          # documentor's suite, run inside tools/documentor

@@ -14,7 +14,7 @@ The captured session is written to `docs/demos/<slug>/session.jsonl` and
 includes a `meta` header derived from the slug. Review the capture, then
 render it with:
 
-    python3 scripts/demos/render_session.py docs/demos/<slug>/session.jsonl
+    uv run --locked python scripts/demos/render_session.py docs/demos/<slug>/session.jsonl
 
 Capture once, verify by hand (the agent's outputs may need light
 editing for clarity), then commit. The renderer never reaches the live

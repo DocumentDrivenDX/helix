@@ -37,7 +37,7 @@ elif [[ "${TEST_LOCAL_MARKETPLACE:-}" == "1" ]]; then
   git add -A
   git -c user.email=ci@helix -c user.name=ci commit -qm seed
   cd /
-  python3 - <<'PY'
+  uv run --quiet --no-project python - <<'PY'
 import json
 p = "/tmp/helix-local/.claude-plugin/marketplace.json"
 m = json.load(open(p))

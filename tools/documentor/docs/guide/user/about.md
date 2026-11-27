@@ -1,4 +1,4 @@
-<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=codex reviewed=2026-10-29/codex-astra-independent-reader/453c9c3973625d52 -->
+<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=codex reviewed=2026-11-27/claude-author-diff-check/453c9c3973625d52 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#vision sha256:af72d95c19717f8b -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#positioning sha256:925b7219f516bebb -->
@@ -7,7 +7,7 @@
 <!-- helix:source docs/helix/01-frame/prd.md#out-of-scope-now sha256:3d376634f9a4f887 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
-<!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
+<!-- helix:source src/documentor/check.py sha256:2ec5ad360a0f527e -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->

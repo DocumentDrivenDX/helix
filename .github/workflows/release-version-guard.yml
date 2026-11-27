@@ -24,12 +24,14 @@ jobs:
           # Manual checks must inspect the requested tag, never main.
           ref: ${{ inputs.tag || github.event.release.tag_name || github.ref }}
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Assert all shipped versions match the release tag
         id: check
         continue-on-error: true
         env:
           TAG: ${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
-        run: python3 scripts/release-version.py "$TAG"
+        run: uv run --locked python scripts/release-version.py "$TAG"
 
       # Never delete tags: another workflow could recreate the release against
       # main. The publisher has its own blocking validation before any upload.

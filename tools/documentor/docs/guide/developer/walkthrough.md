@@ -1,7 +1,7 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-11-02/codex-independent-reader/c55e176b4732400e -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-11-27/claude-independent-reader/c55e176b4732400e -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
-<!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
+<!-- helix:source src/documentor/check.py sha256:2ec5ad360a0f527e -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/visuals.py sha256:1d4bb1fa77dff99e -->
@@ -9,14 +9,14 @@
 <!-- helix:source tests/python/test_architecture_views.py sha256:0261fa8f319ee2bc -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
-<!-- helix:source tests/validate-guide.sh sha256:5c416438f8ca7e20 -->
-<!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:40fbab08748e28bb -->
+<!-- helix:source tests/validate-guide.sh sha256:5aeff6db946414a9 -->
+<!-- helix:source tests/validate-publish.sh sha256:3fa6ea492e8a50c5 -->
 <!-- helix:source tests/validate-publish-traits.sh sha256:6f8a932174fe2332 -->
-<!-- helix:source tests/validate-write.sh sha256:e7fa04c7257f761e -->
+<!-- helix:source tests/validate-write.sh sha256:75b9802dd8a914e8 -->
 <!-- helix:source tests/python/test_report.py sha256:8952e75926f6350b -->
 <!-- helix:source tests/python/test_generators_ops.py sha256:7b51edcbc2916d4e -->
-<!-- helix:source justfile sha256:33d64f77836eb9e1 -->
+<!-- helix:source justfile sha256:70068f1bcd44b7d9 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
 <!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->

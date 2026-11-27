@@ -91,7 +91,7 @@ validation:
       severity: blocking
 
     - check: recommendations_owned_and_dated
-      description: Each recommendation states its stance, rationale, and the pinned assessments it rests on, carries a review date, and is shown as proposed until a named approver and date are both recorded; the Recommendations table equals what `assessment-tables.py` makes from the block
+      description: Each recommendation states its stance, rationale, and the pinned assessments it rests on, carries a review date, and is shown as proposed until a named approver and date are both recorded; the Recommendations table equals what the block makes (by `assessment-tables.py` or by hand, workflows/references/without-scripts.md)
       severity: blocking
 
     - check: limits_stated
@@ -99,7 +99,7 @@ validation:
       severity: blocking
 
     - check: weights_are_judgement
-      description: Each weight is decisive, important, or minor with a one-line reason, names a criterion a pinned assessment has a finding for, and is presented as the paper's judgement; the Decision Criteria table equals what `assessment-tables.py` makes from `weights:`
+      description: Each weight is decisive, important, or minor with a one-line reason, names a criterion a pinned assessment has a finding for, and is presented as the paper's judgement; the Decision Criteria table equals what `weights:` makes (by script or by hand)
       severity: blocking
 
     - check: assessments_pinned_at_publish

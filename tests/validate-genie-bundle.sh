@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
@@ -17,7 +19,7 @@ expected_refs="$(mktemp -d)"
 trap 'rm -rf "$bundle_parent" "$expected_refs"' EXIT
 
 bash "$repo_root/scripts/build-genie-bundle.sh" --out "$bundle_parent" >/dev/null
-python3 "$repo_root/scripts/sync_references.py" "$expected_refs" >/dev/null
+uvpy "$repo_root/scripts/sync_references.py" "$expected_refs" >/dev/null
 
 bundle_root="$bundle_parent/helix"
 

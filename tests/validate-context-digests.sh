@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
-PYTHONPATH="$repo_root" python3 "$repo_root/tests/test_refresh_context_digests.py" >/dev/null
+PYTHONPATH="$repo_root" uvpy "$repo_root/tests/test_refresh_context_digests.py" >/dev/null
 
 cat >"$tmpdir/valid.jsonl" <<'EOF'
 {"id":"hx-digest-ok","title":"digest present","status":"open","labels":["helix","activity:build"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
@@ -14,7 +16,7 @@ cat >"$tmpdir/valid.jsonl" <<'EOF'
 {"id":"hx-closed-legacy","title":"closed legacy bead","status":"closed","labels":["helix","activity:build"],"description":"Legacy body"}
 EOF
 
-python3 "$repo_root/scripts/validate_context_digests.py" --tracker "$tmpdir/valid.jsonl" >/dev/null
+uvpy "$repo_root/scripts/validate_context_digests.py" --tracker "$tmpdir/valid.jsonl" >/dev/null
 
 cat >"$tmpdir/invalid.jsonl" <<'EOF'
 {"id":"hx-digest-missing","title":"missing digest","status":"open","labels":["helix","activity:build"],"description":"Legacy body"}
@@ -25,7 +27,7 @@ cat >"$tmpdir/invalid.jsonl" <<'EOF'
 {"id":"hx-review-finding-missing-area","title":"review finding missing area","status":"open","labels":["helix","activity:build","review-finding"],"description":"<context-digest>\n<principles>Validate Your Work</principles>\n</context-digest>\n\nBody"}
 EOF
 
-if python3 "$repo_root/scripts/validate_context_digests.py" --tracker "$tmpdir/invalid.jsonl" >"$tmpdir/invalid.out" 2>"$tmpdir/invalid.err"; then
+if uvpy "$repo_root/scripts/validate_context_digests.py" --tracker "$tmpdir/invalid.jsonl" >"$tmpdir/invalid.out" 2>"$tmpdir/invalid.err"; then
   echo "FAIL: validator should reject open HELIX beads without a digest or workflow-authorized valid omission rationale" >&2
   exit 1
 fi
@@ -60,4 +62,4 @@ grep -Fq "hx-review-finding-missing-area" "$tmpdir/invalid.err" || {
   exit 1
 }
 
-python3 "$repo_root/scripts/validate_context_digests.py" --tracker "$repo_root/.ddx/beads.jsonl"
+uvpy "$repo_root/scripts/validate_context_digests.py" --tracker "$repo_root/.ddx/beads.jsonl"

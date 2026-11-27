@@ -9,7 +9,7 @@ ddx:
     # - {id: <source id>, kind: supported_by, rev: <pinned revision>}
     # - {id: <other assessment id>, kind: contradicts}
   # Optional: criteria and ratings as data. The Criteria and Comparison tables below are then
-  # generated from it (`assessment-tables.py --write`) and cannot drift from it. Criteria are
+  # generated from it (`assessment-tables.py`, or by hand: workflows/references/without-scripts.md). Criteria are
   # ids from `criteria.yml` at the flow root (entries: id, label, definition, concern). A
   # `keys.yml` beside it may map short names to document ids; subjects and ratings accept a
   # key, while `ddx.links` keep the full id and pinned rev. The document records what each key

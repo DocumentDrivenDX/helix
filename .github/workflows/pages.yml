@@ -120,7 +120,7 @@ jobs:
         run: |
           for s in docs/demos/*/session.jsonl; do
             slug=$(basename "$(dirname "$s")")
-            python3 scripts/demos/render_session.py "$s" --output "website/static/demos/$slug.cast"
+            uv run --locked python scripts/demos/render_session.py "$s" --output "website/static/demos/$slug.cast"
           done
 
       - name: Seal generated pages (build key) and check seals

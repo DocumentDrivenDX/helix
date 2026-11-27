@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pyyaml>=6"]
+# ///
 """Keep a document's generated tables equal to its structured front matter.
 
 Usage:
@@ -30,7 +34,7 @@ BLOCKS = {"technology-assessment": ("assessment",), "position-paper": ("recommen
 
 def main(argv: list[str]) -> int:
     if yaml is None:
-        print("error: PyYAML is required (python3 -m pip install pyyaml)", file=sys.stderr)
+        print("error: PyYAML is not available; run this script with `uv run --script`, or work by hand (workflows/references/without-scripts.md)", file=sys.stderr)
         return 2
     write = "--write" in argv
     files = [Path(a) for a in argv if not a.startswith("--")]

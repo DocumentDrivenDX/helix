@@ -23,10 +23,10 @@ and a `vision`-only cut of it.
 ## Running
 
 ```bash
-python3 scripts/run-eval.py --dry-run                 # list briefs
-python3 scripts/run-eval.py --briefs check-whats-next # one brief
-python3 scripts/run-eval.py --judge                   # all briefs, rubric scored
-python3 scripts/run-eval.py --rejudge evals/results/<stamp> --briefs align-baseline  # judge again, no host run
+uv run --locked python scripts/run-eval.py --dry-run                 # list briefs
+uv run --locked python scripts/run-eval.py --briefs check-whats-next # one brief
+uv run --locked python scripts/run-eval.py --judge                   # all briefs, rubric scored
+uv run --locked python scripts/run-eval.py --rejudge evals/results/<stamp> --briefs align-baseline  # judge again, no host run
 ```
 
 The default runner is Claude Code in print mode with this checkout as the
@@ -43,8 +43,8 @@ Fixtures named `session-*` overlay the baseline from `evals/fixtures/`; a
 fixture marker is preserved rather than replaced with high autonomy. Run:
 
 ```bash
-python3 scripts/run-eval.py --suite evals/session-regressions.yml --dry-run
-python3 scripts/run-eval.py --suite evals/session-regressions.yml --judge
+uv run --locked python scripts/run-eval.py --suite evals/session-regressions.yml --dry-run
+uv run --locked python scripts/run-eval.py --suite evals/session-regressions.yml --judge
 ```
 
 `mode` records the expected route for reporting; it is not passed to the agent

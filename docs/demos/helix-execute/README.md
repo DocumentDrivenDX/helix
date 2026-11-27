@@ -20,7 +20,7 @@ offstage — its job was the artifacts.
 ## Rebuild the cast
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-execute/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-execute/session.jsonl
 bash tests/validate-demos.sh
 ```
 

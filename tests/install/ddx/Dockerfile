@@ -8,12 +8,15 @@
 
 FROM ubuntu:24.04
 
+# Python in these scenarios runs through uv.
+COPY --from=ghcr.io/astral-sh/uv:0.12.7 /uv /uvx /usr/local/bin/
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.local/bin:/usr/local/bin:${PATH}"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl git python3 python3-yaml jq \
+        ca-certificates curl git python3 jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Install DDx CLI.

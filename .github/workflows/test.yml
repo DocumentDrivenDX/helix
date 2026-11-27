@@ -62,6 +62,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Install ddx
         run: curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
         env:
@@ -72,11 +74,14 @@ jobs:
           git config --global user.email "ci@helix.dev"
           git config --global user.name "HELIX CI"
 
+      - name: Validate that Python runs through uv and that code stays optional
+        run: uv run --locked python tests/test_python_policy.py
+
       - name: Validate release versioning
-        run: python3 tests/test_release_version.py
+        run: uv run --locked python tests/test_release_version.py
 
       - name: Validate marketplace publishing
-        run: python3 tests/test_publish_plugin.py
+        run: uv run --locked python tests/test_publish_plugin.py
 
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh
@@ -106,19 +111,19 @@ jobs:
         run: bash tests/validate-instance.sh
 
       - name: Validate requirement-linked verification contracts
-        run: python3 tests/test_verification_contract.py
+        run: uv run --locked python tests/test_verification_contract.py
 
       - name: Validate plan execution and tracker opt-in contracts
-        run: python3 tests/test_plan_execution.py
+        run: uv run --locked python tests/test_plan_execution.py
 
       - name: Validate modularity baseline and boundary negative controls
-        run: python3 tests/test_modularity.py
+        run: uv run --locked python tests/test_modularity.py
 
       - name: Validate OpenTelemetry concern propagation and diagnostic queries
-        run: python3 tests/test_agent_diagnostics.py
+        run: uv run --locked python tests/test_agent_diagnostics.py
 
       - name: Validate formal methods propagation and bounded lease model
-        run: python3 tests/test_formal_methods.py
+        run: uv run --locked python tests/test_formal_methods.py
 
   documentor:
     # documentor (tools/documentor) is the host tool behind HELIX's guide mode. Its suite runs
@@ -162,11 +167,13 @@ jobs:
       CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+
       - name: Synthesize credentials.json (when using OAuth token)
         if: env.CLAUDE_OAUTH_TOKEN != '' && env.ANTHROPIC_API_KEY == ''
         run: |
           mkdir -p creds
-          python3 - <<'PY'
+          uv run --locked python - <<'PY'
           import json, os, time
           creds = {"claudeAiOauth": {
               "accessToken": os.environ["CLAUDE_OAUTH_TOKEN"],

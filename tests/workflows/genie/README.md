@@ -17,10 +17,9 @@ This directory contains the Playwright-based integration test for HELIX skill ac
 
 1. **Databricks workspace** with HELIX skill installed (`docs/install/databricks-genie.md`)
 2. **Genie Code enabled** in the workspace
-3. **Python 3.8+** with Playwright installed:
+3. **uv**, which supplies Python and the driver's dependencies. Install the browser once:
    ```bash
-   pip install playwright
-   playwright install chromium
+   uv run --with playwright playwright install chromium
    ```
 4. **DBAUTH session cookie** (obtained from browser DevTools or workspace auth flow)
 
@@ -118,8 +117,7 @@ tests/workflows/genie/
 ### "Playwright not installed"
 
 ```bash
-pip install playwright
-playwright install chromium
+uv run --with playwright playwright install chromium
 ```
 
 ### "Response wait timeout"

@@ -43,13 +43,9 @@ EXPECTED_NAME="$(basename "$SKILL_ROOT")"
 # YAML block scalars (description: |) are handled correctly — the earlier
 # regex-only parser caught only single-line descriptions and would silently
 # pass a block-scalar SKILL.md with a real description of any length.
-python3 - "$SKILL_MD" "$EXPECTED_NAME" <<'PY'
+uv run --quiet --no-project --with 'pyyaml>=6' python - "$SKILL_MD" "$EXPECTED_NAME" <<'PY'
 import sys
-try:
-    import yaml
-except ImportError:
-    print("FAIL: PyYAML required (apt install python3-yaml or pip install PyYAML)", file=sys.stderr)
-    sys.exit(1)
+import yaml
 
 path, expected_name = sys.argv[1], sys.argv[2]
 with open(path) as f:

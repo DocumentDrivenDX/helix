@@ -12,6 +12,8 @@
 #   6. with no icon rasterizer on PATH, the render still succeeds and says badges fell back to numbers
 #   7. (raster hosts) the example rasterizes and, when the pptx skill is installed, validates
 set -euo pipefail
+
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 deliverable="$repo_root/tools/documentor/src/documentor/deliverable"
 renderer="$deliverable/render-deck.js"
@@ -41,13 +43,13 @@ echo "render libraries: unit tests pass"
 for look in editorial technical bold classic; do
   node "$renderer" "$example" "$tmpdir/example-$look.pptx" --look "$look" >"$tmpdir/render-$look.log" 2>&1 \
     || fail "render-deck.js failed for look $look: $(cat "$tmpdir/render-$look.log")"
-  python3 "$qa" "$tmpdir/example-$look.pptx" --no-raster >"$tmpdir/qa-$look.log" 2>&1 \
+  uvpy "$qa" "$tmpdir/example-$look.pptx" --no-raster >"$tmpdir/qa-$look.log" 2>&1 \
     || fail "deck-qa.py blocking findings for look $look: $(grep -E 'BLOCKING|^FAIL' "$tmpdir/qa-$look.log")"
 done
 echo "four looks: render and pass geometry checks"
 
 # 3. parser agreement
-python3 "$checker" "$example" --dump-units >"$tmpdir/py-units.json"
+uvpy "$checker" "$example" --dump-units >"$tmpdir/py-units.json"
 node -e '
 const { parseScript } = require(process.argv[1] + "/lib/script");
 const fs = require("fs");
@@ -60,7 +62,7 @@ echo "parsers: renderer and checker agree on the example's units"
 
 # 4. deck-qa catches known defects
 node "$repo_root/tests/render/make-broken-deck.js" "$tmpdir/broken.pptx" >/dev/null 2>&1 || fail "could not write the broken deck"
-if python3 "$qa" "$tmpdir/broken.pptx" --no-raster >"$tmpdir/broken.log" 2>&1; then fail "deck-qa.py passed a deck with a collision and an overflowing table"; fi
+if uvpy "$qa" "$tmpdir/broken.pptx" --no-raster >"$tmpdir/broken.log" 2>&1; then fail "deck-qa.py passed a deck with a collision and an overflowing table"; fi
 grep -q 'text-collision' "$tmpdir/broken.log" || fail "deck-qa.py missed the text collision: $(cat "$tmpdir/broken.log")"
 grep -Eq 'table-overflow|off-slide' "$tmpdir/broken.log" || fail "deck-qa.py missed the table past the margin: $(cat "$tmpdir/broken.log")"
 echo "deck-qa.py: catches a text collision and a table past the margin"
@@ -68,16 +70,16 @@ echo "deck-qa.py: catches a text collision and a table past the margin"
 # 5. unfit text is reported, not hidden
 if node "$renderer" "$overflow" "$tmpdir/overflow.pptx" >"$tmpdir/overflow.log" 2>&1; then fail "render-deck.js exited 0 on a script whose text cannot fit"; fi
 grep -q 'does not fit\|clamped' "$tmpdir/overflow.log" || fail "render-deck.js did not say what failed to fit: $(cat "$tmpdir/overflow.log")"
-if python3 "$qa" "$tmpdir/overflow.pptx" --no-raster >"$tmpdir/overflow-qa.log" 2>&1; then fail "deck-qa.py passed a deck whose autofit shrinks below the floor"; fi
+if uvpy "$qa" "$tmpdir/overflow.pptx" --no-raster >"$tmpdir/overflow-qa.log" 2>&1; then fail "deck-qa.py passed a deck whose autofit shrinks below the floor"; fi
 grep -Eq 'text-autofit|text-overflow' "$tmpdir/overflow-qa.log" || fail "deck-qa.py did not block the shrunken text: $(cat "$tmpdir/overflow-qa.log")"
 echo "unfit text: renderer exits 1 with a message; deck-qa.py blocks"
 
 # 6. icon fallback
-mkdir -p "$tmpdir/bin"; ln -s "$(command -v node)" "$tmpdir/bin/node"; ln -s "$(command -v python3)" "$tmpdir/bin/python3"
+mkdir -p "$tmpdir/bin"; ln -s "$(command -v node)" "$tmpdir/bin/node"; ln -s "$(uv python find)" "$tmpdir/bin/python3"
 PATH="$tmpdir/bin" node "$renderer" "$icons" "$tmpdir/noicons.pptx" >"$tmpdir/noicons.log" 2>&1 || fail "render failed without a rasterizer: $(cat "$tmpdir/noicons.log")"
 grep -q 'badges fall back to numbers' "$tmpdir/noicons.log" || fail "no fallback message without a rasterizer: $(cat "$tmpdir/noicons.log")"
 node "$renderer" "$icons" "$tmpdir/icons.pptx" >"$tmpdir/icons.log" 2>&1 || fail "icon fixture failed to render: $(cat "$tmpdir/icons.log")"
-python3 "$qa" "$tmpdir/icons.pptx" --no-raster >/dev/null 2>&1 || fail "icon fixture has blocking geometry findings"
+uvpy "$qa" "$tmpdir/icons.pptx" --no-raster >/dev/null 2>&1 || fail "icon fixture has blocking geometry findings"
 echo "icons: render succeeds without a rasterizer and says so; with one, the badges pass geometry"
 
 # 7. raster hosts
@@ -87,18 +89,18 @@ if command -v soffice >/dev/null 2>&1 || [ -x /Applications/LibreOffice.app/Cont
     validator="$(find "$HOME/Library/Application Support/Claude/local-agent-mode-sessions/skills-plugin" -path '*/skills/pptx/scripts/office/validate.py' 2>/dev/null | head -1 || true)"
   fi
   if [ -n "$validator" ] && [ -f "$validator" ]; then
-    vpython="${PPTX_VALIDATOR_PYTHON:-python3}"
-    if "$vpython" -c "import lxml, defusedxml" 2>/dev/null; then
-      "$vpython" "$validator" "$tmpdir/example-editorial.pptx" >"$tmpdir/validate.log" 2>&1 \
+    vpython=(uv run --quiet --no-project --with lxml --with defusedxml python)
+    if "${vpython[@]}" -c "import lxml, defusedxml" 2>/dev/null; then
+      "${vpython[@]}" "$validator" "$tmpdir/example-editorial.pptx" >"$tmpdir/validate.log" 2>&1 \
         || fail "pptx validator rejected the render: $(tail -20 "$tmpdir/validate.log")"
       echo "pptx validator: pass"
     else
-      echo "pptx validator: skipped ($vpython lacks lxml/defusedxml; set PPTX_VALIDATOR_PYTHON)"
+      echo "pptx validator: skipped (uv could not provide lxml and defusedxml)"
     fi
   else
     echo "pptx validator: skipped (pptx skill not found; set PPTX_VALIDATOR)"
   fi
-  python3 "$qa" "$tmpdir/example-editorial.pptx" --out "$tmpdir/qa" >"$tmpdir/qa.log" 2>&1 \
+  uvpy "$qa" "$tmpdir/example-editorial.pptx" --out "$tmpdir/qa" >"$tmpdir/qa.log" 2>&1 \
     || fail "deck-qa.py reported blocking findings on raster: $(grep -E 'BLOCKING|^FAIL' "$tmpdir/qa.log")"
   grep -E '^(OK|FAIL)|rasterized|raster skipped|raster failed' "$tmpdir/qa.log"
 else

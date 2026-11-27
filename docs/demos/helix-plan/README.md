@@ -22,14 +22,14 @@ missing implementation work to `polish` after design and test artifacts exist.
 ## Rebuild the cast
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-plan/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-plan/session.jsonl
 bash tests/validate-demos.sh
 ```
 
 ## Re-capture from a live agent
 
 ```
-python3 scripts/demos/capture_session.py helix-plan \
+uv run --locked python scripts/demos/capture_session.py helix-plan \
     --prompt "Use /helix align to produce authority-ranked planning gaps with destination artifacts, deliverable shapes, next modes, and evidence references." \
     --fixture docs/demos/helix-plan/fixture/
 ```

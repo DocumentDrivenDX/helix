@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["playwright"]
+# ///
 """Genie Code Playwright driver for HELIX workflow integration tests.
 
 Drives Databricks Genie Code chat surface via headless Chromium, exercising
@@ -6,7 +10,7 @@ HELIX skill activation for each scenario. Captures webm recordings and
 per-prompt JSON event logs.
 
 Usage:
-    python genie-playwright-driver.py --workspace-url <URL> --dbauth-cookie <path> [--no-skill]
+    uv run --script genie-playwright-driver.py --workspace-url <URL> --dbauth-cookie <path> [--no-skill]
 
 Environment:
     DATABRICKS_HOST: workspace host (e.g., https://adb-xxx.azuredatabricks.net)

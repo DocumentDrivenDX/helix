@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="${HELIX_VALIDATE_SKILLS_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 skills_dir="$repo_root/skills"
 agents_package_dir="$repo_root/.agents/skills"
@@ -65,11 +67,7 @@ assert_output_contains() {
 
 # ---------- Plugin layout checks ----------
 
-if command -v python3 >/dev/null 2>&1; then
-  python3 "$repo_root/scripts/helix_validate_artifact_meta.py"
-else
-  fail "python3 is required for artifact metadata validation"
-fi
+uvpy "$repo_root/scripts/helix_validate_artifact_meta.py"
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 [[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
@@ -79,8 +77,7 @@ plugin_hooks="$repo_root/hooks/hooks.json"
 marketplace_manifest="$repo_root/.claude-plugin/marketplace.json"
 
 # Validate plugin.json is parseable JSON with required fields
-if command -v python3 &>/dev/null; then
-  python3 - "$plugin_manifest" "$codex_plugin_manifest" "$plugin_hooks" "$marketplace_manifest" <<'PYEOF'
+  uvpy - "$plugin_manifest" "$codex_plugin_manifest" "$plugin_hooks" "$marketplace_manifest" <<'PYEOF'
 import json, sys
 path, codex_path, plugin_hooks, marketplace_path = sys.argv[1:5]
 try:
@@ -236,7 +233,6 @@ if os.path.exists(plugin_hooks):
         sys.exit(1)
 PYEOF
   [[ $? -eq 0 ]] || fail "plugin.json validation failed"
-fi
 
 # hooks/hooks.json is optional — Claude Code auto-loads if present.
 
@@ -459,7 +455,7 @@ assert_file_contains \
 # but only a research-fork copy is shipped" — a defect that lets the
 # plugin install while leaving the skill unable to load its resources at
 # runtime.
-python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root" <<'PYEOF' || fail "SKILL.md references a path that does not exist in the shipped tree"
+uvpy - "$repo_root/skills/helix/SKILL.md" "$repo_root" <<'PYEOF' || fail "SKILL.md references a path that does not exist in the shipped tree"
 import re, sys
 skill_path, repo_root = sys.argv[1], sys.argv[2]
 text = open(skill_path).read()
@@ -498,7 +494,7 @@ PYEOF
 
 # Mode table <-> mode files: every routed mode has a workflows/modes/<mode>.md
 # contract and every non-underscore mode file is routed.
-python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/modes" <<'PYEOF' || fail "routing table and workflows/modes/ disagree"
+uvpy - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/modes" <<'PYEOF' || fail "routing table and workflows/modes/ disagree"
 import os, re, sys
 skill, modes_dir = sys.argv[1], sys.argv[2]
 text = open(skill, encoding="utf-8").read()
@@ -529,7 +525,7 @@ PYEOF
 # Catalog drift: SKILL.md points at graph.yml for the artifact-type listing
 # instead of carrying a table, so graph.yml nodes must match the artifact-type
 # directories under workflows/activities/*/artifacts/ exactly.
-python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/graph.yml" "$repo_root/workflows/activities" <<'PYEOF' || fail "workflows/graph.yml nodes do not match workflows/activities/*/artifacts/"
+uvpy - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/graph.yml" "$repo_root/workflows/activities" <<'PYEOF' || fail "workflows/graph.yml nodes do not match workflows/activities/*/artifacts/"
 import os, sys, yaml
 skill, graph_path, activities = sys.argv[1:4]
 text = open(skill, encoding="utf-8").read()
@@ -558,7 +554,7 @@ PYEOF
 # against the committed copy. Catches "meta.yml relationships.informs changed
 # but graph.yml wasn't regenerated."
 graph_tmp="$(mktemp)"
-python3 - "$repo_root" "$graph_tmp" <<'PYEOF' || fail "workflows/graph.yml is stale — run scripts/generate_graph.py"
+uvpy - "$repo_root" "$graph_tmp" <<'PYEOF' || fail "workflows/graph.yml is stale — run scripts/generate_graph.py"
 import subprocess, sys, shutil, os, filecmp
 repo_root, tmp = sys.argv[1], sys.argv[2]
 # Run generator with output redirected to tmp via env-side-channel: easiest is
@@ -584,7 +580,7 @@ rm -f "$graph_tmp" "$graph_tmp.committed"
   fail "skills/helix/references/ is generated package output and must not be committed on main"
 ref_tmp="$(mktemp -d)"
 pkg_tmp="$(mktemp -d)"
-if ! python3 "$repo_root/scripts/sync_references.py" "$ref_tmp" >/dev/null; then
+if ! uvpy "$repo_root/scripts/sync_references.py" "$ref_tmp" >/dev/null; then
   rm -rf "$ref_tmp" "$pkg_tmp"
   fail "sync_references.py failed"
 fi
@@ -602,7 +598,7 @@ rm -rf "$ref_tmp" "$pkg_tmp"
 # skill body"): the routing skill must not name a runtime's tracker vocabulary,
 # host-specific invocation commands, or test-bench machinery. Runtimes own
 # execution; the bench is evidence, not contract.
-python3 - "$repo_root/skills/helix/SKILL.md" <<'PYEOF' || fail "SKILL.md carries runtime-specific or bench-specific language (PRD R-4)"
+uvpy - "$repo_root/skills/helix/SKILL.md" <<'PYEOF' || fail "SKILL.md carries runtime-specific or bench-specific language (PRD R-4)"
 import re, sys
 text = open(sys.argv[1], encoding="utf-8").read()
 body = text[text.find("\n---\n", 4) + 5:]
@@ -654,7 +650,7 @@ PYEOF
 #
 # Targets the canonical install at skills/helix/SKILL.md (post canonical-
 # promotion; the methodology-* research fork was removed).
-python3 - "$repo_root" <<'PYEOF' || fail "canonical SKILL.md frontmatter check failed"
+uvpy - "$repo_root" <<'PYEOF' || fail "canonical SKILL.md frontmatter check failed"
 import sys, yaml, glob, os
 repo_root = sys.argv[1]
 patterns = [

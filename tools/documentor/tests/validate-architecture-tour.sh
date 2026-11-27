@@ -19,7 +19,7 @@ cat > tokens/manifest.json <<'JSON'
 {"themes": [{"name": "blueprint", "default": "dark", "appearances": ["dark"]},
             {"name": "helix", "default": "light", "appearances": ["light"]}]}
 JSON
-python3 - <<'PY'
+uv run --no-project python - <<'PY'
 import json
 def tokens(ground, accent, text):
     return {"tokens": {"piq-color-ground": ground, "piq-color-surface": ground, "piq-color-surface-sunken": ground,
@@ -92,7 +92,7 @@ elements = ["user", "svc", "db"]
 TOML
 
 $rg tour --root . --view deployment --journey read --theme blueprint --out out >/dev/null
-python3 - out <<'PY'
+uv run --no-project python - out <<'PY'
 import json, sys
 out = sys.argv[1]
 d = json.load(open(f"{out}/eraser.json"))
@@ -121,7 +121,7 @@ PY
 # A model change redraws it: move the database beside the service, and its box changes zone.
 sed -i.bak 's/tier = 3/tier = 2/; s/zone = "Data"/zone = "Apps"/' "$M"
 $rg tour --root . --view deployment --theme helix --out moved >/dev/null
-python3 - moved <<'PY'
+uv run --no-project python - moved <<'PY'
 import json, sys
 d = json.load(open(f"{sys.argv[1]}/eraser.json"))
 shapes = {e["id"]: e for e in d["entities"] if e["tag"] == "Shape"}

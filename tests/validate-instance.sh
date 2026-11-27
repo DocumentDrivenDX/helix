@@ -4,9 +4,11 @@
 # specific check ids).
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python3 "$repo_root/tests/test_document_history.py"
-python3 "$repo_root/tests/test_living_documents.py"
+uvpy "$repo_root/tests/test_document_history.py"
+uvpy "$repo_root/tests/test_living_documents.py"
 validator="$repo_root/skills/helix/scripts/validate-instance.py"
 fixtures="$repo_root/tests/fixtures/validate-instance"
 tmpdir="$(mktemp -d)"
@@ -20,7 +22,7 @@ count=0
 for path in "$repo_root"/workflows/activities/*/artifacts/*/example*.md; do
   type_id="$(basename "$(dirname "$path")")"
   rel="${path#"$repo_root"/workflows/activities/}"
-  python3 "$validator" "$path" >"$tmpdir/out" 2>&1 \
+  uvpy "$validator" "$path" >"$tmpdir/out" 2>&1 \
     || fail "$rel should validate cleanly:
 $(cat "$tmpdir/out")"
   grep -q "type=$type_id " "$tmpdir/out" \
@@ -34,7 +36,7 @@ done
 ux=0
 for path in "$fixtures"/ux/*.md; do
   type_id="$(basename "$path" .md)"
-  python3 "$validator" "$path" --catalog "$repo_root/workflows" >"$tmpdir/out" 2>&1 \
+  uvpy "$validator" "$path" --catalog "$repo_root/workflows" >"$tmpdir/out" 2>&1 \
     || fail "ux/$type_id.md should validate cleanly:
 $(cat "$tmpdir/out")"
   grep -q "type=$type_id " "$tmpdir/out" || fail "ux/$type_id.md should resolve to type $type_id"
@@ -43,7 +45,7 @@ done
 [ "$ux" -eq 9 ] || fail "expected 9 optional-section fixtures, ran $ux"
 
 # Broken PRD: missing required section, leftover placeholder, failed catalog regex.
-if python3 "$validator" "$fixtures/broken-prd.md" --catalog "$repo_root/workflows" >"$tmpdir/broken.out" 2>&1; then
+if uvpy "$validator" "$fixtures/broken-prd.md" --catalog "$repo_root/workflows" >"$tmpdir/broken.out" 2>&1; then
   fail "broken-prd.md should exit 1"
 fi
 for check in required_sections.success_criteria placeholder pattern_checks.0; do
@@ -53,7 +55,7 @@ $(cat "$tmpdir/broken.out")"
 done
 
 # JSON output carries the same findings and a summary.
-python3 - "$validator" "$fixtures/broken-prd.md" <<'PYEOF' || fail "json output shape is wrong"
+uvpy - "$validator" "$fixtures/broken-prd.md" <<'PYEOF' || fail "json output shape is wrong"
 import json, subprocess, sys
 proc = subprocess.run([sys.executable, sys.argv[1], sys.argv[2], "--format", "json"], capture_output=True, text=True)
 data = json.loads(proc.stdout)
@@ -67,14 +69,14 @@ PYEOF
 
 # Unresolvable type is a usage error (exit 2), not a validation failure.
 printf -- '---\nddx:\n  id: X-1\n  authoring:\n    home: repo\n---\n# untyped\n' >"$tmpdir/untyped.md"
-if python3 "$validator" "$tmpdir/untyped.md" --catalog "$repo_root/workflows" >"$tmpdir/untyped.out" 2>&1; then
+if uvpy "$validator" "$tmpdir/untyped.md" --catalog "$repo_root/workflows" >"$tmpdir/untyped.out" 2>&1; then
   fail "untyped instance should not validate"
 fi
 grep -q "could not resolve the artifact type" "$tmpdir/untyped.out" \
   || fail "untyped instance should report an unresolvable type"
 
 # --type resolves it; the near-empty document then fails on required_sections.
-python3 "$validator" "$tmpdir/untyped.md" --catalog "$repo_root/workflows" --type prd >"$tmpdir/typed.out" 2>&1 && \
+uvpy "$validator" "$tmpdir/untyped.md" --catalog "$repo_root/workflows" --type prd >"$tmpdir/typed.out" 2>&1 && \
   fail "--type prd on an empty document should still fail required_sections"
 grep -q "type=prd " "$tmpdir/typed.out" || fail "--type should select the prd type"
 
@@ -87,7 +89,7 @@ for path in "$repo_root"/workflows/activities/*/artifacts/*/example*.md; do
   grep -q "audience: human" "$(dirname "$path")/meta.yml" || continue
   audited=$((audited + 1))
   rel="${path#"$repo_root"/workflows/activities/}"
-  python3 "$validator" "$path" --strict-prose >"$tmpdir/strict.out" 2>&1 \
+  uvpy "$validator" "$path" --strict-prose >"$tmpdir/strict.out" 2>&1 \
     || fail "$rel should meet its voice profile's prose rules:
 $(grep 'prose\.' "$tmpdir/strict.out")"
 done
@@ -102,7 +104,7 @@ cp "$repo_root/workflows/activities/06-iterate/artifacts/deliverable/example.md"
   printf '\nWrite "is", not "serves as".\n'
   printf '\n<!-- architecture-view: context -->\nThis document serves as a generated block.\n<!-- /architecture-view -->\n'
 } >>"$prose"
-python3 "$validator" "$prose" --catalog "$repo_root/workflows" >"$tmpdir/prose.out" 2>&1 \
+uvpy "$validator" "$prose" --catalog "$repo_root/workflows" >"$tmpdir/prose.out" 2>&1 \
   || fail "prose findings should be warnings without --strict-prose:
 $(cat "$tmpdir/prose.out")"
 for check in prose.sentence; do
@@ -116,7 +118,7 @@ done
 [ "$(grep -cF 'prose.avoid  "serves as"' "$tmpdir/prose.out")" -eq 1 ] \
   || fail "a quoted phrase and a generated block must not be matched:
 $(cat "$tmpdir/prose.out")"
-if python3 "$validator" "$prose" --catalog "$repo_root/workflows" --strict-prose >"$tmpdir/strict.out" 2>&1; then
+if uvpy "$validator" "$prose" --catalog "$repo_root/workflows" --strict-prose >"$tmpdir/strict.out" 2>&1; then
   fail "--strict-prose should make prose findings blocking"
 fi
 grep -Eq "^BLOCKING +prose\.sentence " "$tmpdir/strict.out" || fail "--strict-prose should report blocking prose.sentence"
@@ -130,17 +132,17 @@ sed 's/^  id: \(.*\)$/  id: \1\
   status: accepted/' "$repo_root/workflows/activities/02-design/artifacts/adr/example.md" >"$decided"
 grep -q "^  status: accepted$" "$decided" || fail "test setup: could not mark the ADR accepted"
 printf '\nThis document serves as a record that is decided and will not be rewritten by anyone at all for any reason whatsoever in any case.\n' >>"$decided"
-python3 "$validator" "$decided" --catalog "$repo_root/workflows" --strict-prose >"$tmpdir/decided.out" 2>&1 \
+uvpy "$validator" "$decided" --catalog "$repo_root/workflows" --strict-prose >"$tmpdir/decided.out" 2>&1 \
   || fail "an agent-read type should not be audited:
 $(cat "$tmpdir/decided.out")"
 grep -q "prose\." "$tmpdir/decided.out" && fail "an agent-read type produced prose findings"
 cp "$prose" "$project/docs/helix/02-design/overview.md"
 printf 'prose:\n  strict: true\n  exempt:\n    - "docs/helix/04-build/*"\n' >"$project/.helix.yml"
-if python3 "$validator" "$project/docs/helix/02-design/overview.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/project.out" 2>&1; then
+if uvpy "$validator" "$project/docs/helix/02-design/overview.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/project.out" 2>&1; then
   fail ".helix.yml prose.strict should make findings blocking"
 fi
 cp "$prose" "$project/docs/helix/04-build/log.md"
-python3 "$validator" "$project/docs/helix/04-build/log.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/exempt.out" 2>&1
+uvpy "$validator" "$project/docs/helix/04-build/log.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/exempt.out" 2>&1
 grep -q "prose\." "$tmpdir/exempt.out" && fail "a path listed in .helix.yml prose.exempt should not be audited"
 
 # Visual blocks (workflows/references/visuals.md): a well-formed block and a source reference pass; a
@@ -166,7 +168,7 @@ flowchart LR
   a --> b
 ```
 MD
-python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1 \
+uvpy "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1 \
   || fail "well-formed visual blocks should pass:
 $(cat "$tmpdir/visuals.out")"
 grep -q "visual\." "$tmpdir/visuals.out" && fail "well-formed visual blocks produced findings:
@@ -206,7 +208,7 @@ flowchart LR
 ```
 ~~~
 MD
-python3 "$validator" "$literal" --catalog "$repo_root/workflows" >"$tmpdir/literal.out" 2>&1 \
+uvpy "$validator" "$literal" --catalog "$repo_root/workflows" >"$tmpdir/literal.out" 2>&1 \
   || fail "literal visual samples inside an outer fence should pass:
 $(cat "$tmpdir/literal.out")"
 grep -q "visual\." "$tmpdir/literal.out" && fail "literal visual samples inside an outer fence produced findings:
@@ -242,7 +244,7 @@ flowchart LR
   c --> d
 ```
 MD
-if python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1; then
+if uvpy "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1; then
   fail "malformed visual blocks should block"
 fi
 for expected in "BLOCKING +visual\.id .*needs .id=" "BLOCKING +visual\.id .*'store-options' is used twice" \
@@ -265,7 +267,7 @@ cp "$ta_src" "$sb/TA-001.md"  # the assessment the paper's weights are checked a
 expect_block() {  # file, sed expression, expected finding regex
   local file="$sb/case.md" src="$1"; shift
   sed "$1" "$src" >"$file"
-  if python3 "$validator" "$file" --catalog "$repo_root/workflows" ${TIER:-} >"$tmpdir/case.out" 2>&1; then
+  if uvpy "$validator" "$file" --catalog "$repo_root/workflows" ${TIER:-} >"$tmpdir/case.out" 2>&1; then
     fail "structured case /$1/ should block:
 $(cat "$tmpdir/case.out")"
   fi
@@ -308,34 +310,34 @@ expect_block "$pp_src" '/^| The repository.s existing runtime is Node.js /d; /^|
 # A paper with no Limits table predates it: a warning at either tier, so it still publishes.
 sed '/^| Condition | Option that wins | Evidence |$/,/^| A script needs a library /d' "$pp_src" >"$sb/nolimits.md"
 grep -q 'Option that wins' "$sb/nolimits.md" && fail "test setup: the Limits table was not removed"
-python3 "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+uvpy "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
   && grep -Eq "^WARNING +limits_table .*no table" "$tmpdir/case.out" || fail "a paper with no Limits table should warn and pass at the default tier:
 $(cat "$tmpdir/case.out")"
 # (the example's pins are placeholders, so it cannot pass the publish tier; the Limits finding must still be a warning there)
-python3 "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1 || true
+uvpy "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1 || true
 grep -Eq "^WARNING +limits_table .*no table" "$tmpdir/case.out" && ! grep -Eq "^BLOCKING +limits_table" "$tmpdir/case.out" \
   || fail "a paper with no Limits table should only warn about it at the publish tier:
 $(cat "$tmpdir/case.out")"
 rm -f "$sb/nolimits.md"
 sed '/^recommendations:$/,/^weights:$/{/^weights:$/!d;}' "$pp_src" >"$sb/weightsonly.md"
 grep -q '^recommendations:' "$sb/weightsonly.md" && fail "test setup: recommendations were not removed"
-python3 "$tables" "$sb/weightsonly.md" >"$tmpdir/tables.out" 2>&1 || fail "a paper with weights and no recommendations should generate its Decision Criteria table:
+uvpy "$tables" "$sb/weightsonly.md" >"$tmpdir/tables.out" 2>&1 || fail "a paper with weights and no recommendations should generate its Decision Criteria table:
 $(cat "$tmpdir/tables.out")"
 sed 's/^| Dependency isolation | Minor |/| Dependency isolation | Decisive |/' "$pp_src" >"$sb/wdrift.md"
-if python3 "$tables" "$sb/wdrift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted Decision Criteria table should fail assessment-tables.py"; fi
-python3 "$tables" --write "$sb/wdrift.md" >/dev/null && cmp -s "$sb/wdrift.md" "$pp_src" \
+if uvpy "$tables" "$sb/wdrift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted Decision Criteria table should fail assessment-tables.py"; fi
+uvpy "$tables" --write "$sb/wdrift.md" >/dev/null && cmp -s "$sb/wdrift.md" "$pp_src" \
   || fail "assessment-tables.py --write should restore the Decision Criteria table"
 rm -f "$sb/weightsonly.md" "$sb/wdrift.md"
 
 # Views: with a views.yml beside criteria.yml, a criterion's `view:` must name a view in it; one id
 # or a list. Without views.yml a `view:` is not checked.
 sed 's/^    concern: none$/    concern: none\n    view: finance/' "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" >"$sb/criteria.yml"
-python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a view: without views.yml should not be checked"
+uvpy "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a view: without views.yml should not be checked"
 printf 'views:\n  - {id: finance, label: Finance}\n  - {id: apps-dev, label: Apps Dev}\n' >"$sb/views.yml"
-python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a view named in views.yml should validate:
+uvpy "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a view named in views.yml should validate:
 $(cat "$tmpdir/case.out")"
 sed -i.bak 's/^    view: finance$/    view: [finance, apps-dev]/' "$sb/criteria.yml"
-python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a list of views named in views.yml should validate"
+uvpy "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a list of views named in views.yml should validate"
 printf 'views:\n  - {id: apps-dev, label: Apps Dev}\n' >"$sb/views.yml"
 expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*names view 'finance', which is not in views.yml"
 printf 'views:\n  - apps-dev\n' >"$sb/views.yml"
@@ -357,33 +359,33 @@ expect_block "$pp_src" 's/based_on: \[{assessment: TA-001, criteria: \[text-and-
 expect_block "$pp_src" 's/    since: 2026-11-06/    since: 20261106/' "BLOCKING +recommendations\.0 .*YYYY-MM-DD"
 # Pins are required at the publish tier only; cited criteria need a catalogue.
 cp "$pp_src" "$sb/pinless.md"; sed -i.bak 's/- {id: TA-001, kind: supported_by, rev: example}/- {id: TA-001, kind: supported_by}/' "$sb/pinless.md"
-python3 "$validator" "$sb/pinless.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a paper without a pin should validate at the default tier"
+uvpy "$validator" "$sb/pinless.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a paper without a pin should validate at the default tier"
 TIER="--tier publish" expect_block "$sb/pinless.md" 's/^$/&/' "BLOCKING +recommendations\.0 .*needs a pinned rev"
 nocat="$tmpdir/nocatalogue"; mkdir -p "$nocat"; touch "$nocat/.helix.yml"; cp "$pp_src" "$nocat/PP-001.md"
-python3 "$validator" "$nocat/PP-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 && fail "cited criteria without criteria.yml should block"
+uvpy "$validator" "$nocat/PP-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 && fail "cited criteria without criteria.yml should block"
 grep -Eq "BLOCKING +recommendations\.0 .*does not have" "$tmpdir/case.out" || fail "expected the missing-catalogue finding:
 $(cat "$tmpdir/case.out")"
 # A catalogue entry without a label is a finding, not a KeyError in the table tool.
 printf 'criteria:\n  - id: script-distribution\n' >"$sb/criteria.yml"
 expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*string .id. and .label"
-if python3 "$tables" "$ta_src" >"$tmpdir/tables.out" 2>&1; then :; fi
+if uvpy "$tables" "$ta_src" >"$tmpdir/tables.out" 2>&1; then :; fi
 cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
 
 # A pipe in a finding is escaped on write and the table stays well formed.
 sed 's/finding: Brief section Capabilities}$/finding: "a | b"}/' "$ta_src" >"$sb/pipe.md"
-python3 "$tables" --write "$sb/pipe.md" >/dev/null || fail "writing a finding with a pipe should succeed"
+uvpy "$tables" --write "$sb/pipe.md" >/dev/null || fail "writing a finding with a pipe should succeed"
 grep -Fq '| Text and file handling | a \| b | a \| b |' "$sb/pipe.md" || fail "a pipe in a finding should be escaped in the table:
 $(grep -n 'Text and file' "$sb/pipe.md")"
-python3 "$tables" "$sb/pipe.md" >/dev/null || fail "a table with an escaped pipe should check clean"
-python3 "$validator" "$sb/pipe.md" --catalog "$repo_root/workflows" >/dev/null || fail "a finding with a pipe should validate"
+uvpy "$tables" "$sb/pipe.md" >/dev/null || fail "a table with an escaped pipe should check clean"
+uvpy "$validator" "$sb/pipe.md" --catalog "$repo_root/workflows" >/dev/null || fail "a finding with a pipe should validate"
 
 # Generated tables: current examples pass; a drifted cell fails the check; --write repairs it.
-python3 "$tables" "$ta_src" "$pp_src" >"$tmpdir/tables.out" 2>&1 || fail "catalog examples' tables should match their blocks:
+uvpy "$tables" "$ta_src" "$pp_src" >"$tmpdir/tables.out" 2>&1 || fail "catalog examples' tables should match their blocks:
 $(cat "$tmpdir/tables.out")"
 sed 's/^| Script distribution | Unknown (not in the brief) | Unknown/| Script distribution | Fine | Unknown/' "$ta_src" >"$sb/drift.md"
-if python3 "$tables" "$sb/drift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted table should fail assessment-tables.py"; fi
+if uvpy "$tables" "$sb/drift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted table should fail assessment-tables.py"; fi
 grep -q "FAIL" "$tmpdir/tables.out" || fail "a drifted table should report FAIL"
-python3 "$tables" --write "$sb/drift.md" >/dev/null && cmp -s "$sb/drift.md" "$ta_src" \
+uvpy "$tables" --write "$sb/drift.md" >/dev/null && cmp -s "$sb/drift.md" "$ta_src" \
   || fail "assessment-tables.py --write should restore the generated table"
 
 # Keys: a short name in a block stands for a document id; ddx.links keep full ids and pins, and the
@@ -395,11 +397,11 @@ sed -e 's/^    - {id: component-profile-nodejs-reusable, label: Node.js}/    - {
     -e 's/subject: component-profile-python-reusable,/subject: python,/' \
     -e 's/^assessment:/keys:\n  nodejs: component-profile-nodejs-reusable\n  python: component-profile-python-reusable\nassessment:/' "$ta_src" >"$sb/keyed.md"
 grep -q 'id: nodejs, label' "$sb/keyed.md" && grep -q 'subject: python,' "$sb/keyed.md" || fail "test setup: keys were not substituted"
-python3 "$validator" "$sb/keyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed assessment should validate:
+uvpy "$validator" "$sb/keyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed assessment should validate:
 $(cat "$tmpdir/case.out")"
-python3 "$tables" "$sb/keyed.md" >/dev/null || fail "a keyed assessment should generate the same tables as the full-id one"
+uvpy "$tables" "$sb/keyed.md" >/dev/null || fail "a keyed assessment should generate the same tables as the full-id one"
 sed -e 's/^    - {id: nodejs, label: Node.js}/    - {id: nodejs-unknown, label: Node.js}/' "$sb/keyed.md" >"$sb/case.md"
-python3 "$validator" "$sb/case.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 && fail "an unknown key is taken as an id and must be linked"
+uvpy "$validator" "$sb/case.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 && fail "an unknown key is taken as an id and must be linked"
 grep -Eq "BLOCKING +assessment\.subjects .*'nodejs-unknown' is not linked" "$tmpdir/case.out" || fail "an unknown key should read as an unlinked id:
 $(cat "$tmpdir/case.out")"
 expect_block "$sb/keyed.md" 's/^    - {id: component-profile-python-reusable, kind: evaluates, rev: example}/    - {id: python, kind: evaluates, rev: example}\n    - {id: component-profile-python-reusable, kind: supported_by, rev: example}/' "BLOCKING +keys .*both a key in keys.yml and a linked document id"
@@ -422,7 +424,7 @@ printf 'keys: [a]\n' >"$sb/keys.yml"
 expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*needs a .keys:. mapping"
 # ...but a malformed keys.yml does not block a document that has no block.
 cp "$repo_root/workflows/activities/01-frame/artifacts/prd/example.md" "$sb/prd.md"
-python3 "$validator" "$sb/prd.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a bad keys.yml should not block a document without a block:
+uvpy "$validator" "$sb/prd.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a bad keys.yml should not block a document without a block:
 $(cat "$tmpdir/case.out")"
 # A position paper uses keys the same way, for its subject and its based_on assessment.
 printf 'keys:\n  python: component-profile-python-reusable\n  ta1: TA-001\n' >"$sb/keys.yml"
@@ -430,19 +432,19 @@ sed -e 's/subject: component-profile-python-reusable/subject: python/' \
     -e 's/based_on: \[{assessment: TA-001,/based_on: [{assessment: ta1,/' \
     -e 's/^recommendations:/keys:\n  python: component-profile-python-reusable\n  ta1: TA-001\nrecommendations:/' "$pp_src" >"$sb/ppkeyed.md"
 grep -q 'assessment: ta1' "$sb/ppkeyed.md" || fail "test setup: paper keys were not substituted"
-python3 "$validator" "$sb/ppkeyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed position paper should validate:
+uvpy "$validator" "$sb/ppkeyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed position paper should validate:
 $(cat "$tmpdir/case.out")"
-python3 "$tables" "$sb/ppkeyed.md" >/dev/null || fail "a keyed position paper should generate the same table"
+uvpy "$tables" "$sb/ppkeyed.md" >/dev/null || fail "a keyed position paper should generate the same table"
 rm -f "$sb/keys.yml" "$sb/ppkeyed.md" "$sb/keyed.md"
 
 # Figure attributes: {basis=... accessed=... source=...} is checked wherever it appears; code is not.
 fig() {  # text placed after the Findings heading (\n = newline), expected regex (empty = must pass)
   sed "s|^## Findings\$|## Findings\n\n$1|" "$ta_src" >"$sb/fig.md"
   if [ -z "$2" ]; then
-    python3 "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "figure /$1/ should pass:
+    uvpy "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "figure /$1/ should pass:
 $(cat "$tmpdir/case.out")"
   else
-    if python3 "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1; then fail "figure /$1/ should block"; fi
+    if uvpy "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1; then fail "figure /$1/ should block"; fi
     grep -Eq "$2" "$tmpdir/case.out" || fail "figure /$1/ should report /$2/:
 $(cat "$tmpdir/case.out")"
   fi
@@ -479,10 +481,10 @@ proj="$tmpdir/atlasproj"; mkdir -p "$proj/knowledge"
 printf 'flows:\n  - id: atlas\n    profile: technology-atlas\n    root: knowledge/\n' >"$proj/.helix.yml"
 cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$proj/knowledge/"
 sed -e 's|^## Findings$|## Findings\n\nFive years. {basis=guess accessed=2026-11-06 source=x}|' "$ta_src" >"$proj/knowledge/TA-001.md"
-python3 "$validator" "$proj/knowledge/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+uvpy "$validator" "$proj/knowledge/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
   && grep -Eq "^WARNING +figure\.basis " "$tmpdir/case.out" || fail "a figure finding should be a warning at the default tier:
 $(cat "$tmpdir/case.out")"
-if python3 "$validator" "$proj/knowledge/TA-001.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1; then
+if uvpy "$validator" "$proj/knowledge/TA-001.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1; then
   fail "a figure finding should block at the publish tier"
 fi
 grep -Eq "^BLOCKING +figure\.basis " "$tmpdir/case.out" || fail "expected a blocking figure.basis at the publish tier:
@@ -495,7 +497,7 @@ brief_src="$repo_root/workflows/activities/00-discover/artifacts/component-profi
 awk '/^## Views$/{skip=1} /^## Confidence$/{skip=0} !skip' "$brief_src" >"$sb/noviews.md"
 grep -q '^## Views$' "$sb/noviews.md" && fail "test setup: the Views section was not removed"
 for tier in default publish; do
-  python3 "$validator" "$sb/noviews.md" --catalog "$repo_root/workflows" --tier "$tier" >"$tmpdir/case.out" 2>&1 \
+  uvpy "$validator" "$sb/noviews.md" --catalog "$repo_root/workflows" --tier "$tier" >"$tmpdir/case.out" 2>&1 \
     && grep -Eq "^WARNING +views .*no Views section" "$tmpdir/case.out" || fail "a brief with no Views section should warn and pass at the $tier tier:
 $(cat "$tmpdir/case.out")"
 done
@@ -503,8 +505,28 @@ expect_block "$brief_src" 's/^### Finance$/### Money/' "BLOCKING +views .*no .##
 awk '/^### Apps Dev$/{print; skip=1; next} /^## Confidence$/{skip=0} !skip' "$brief_src" >"$sb/emptyview.md"
 expect_block "$sb/emptyview.md" 's/^$/&/' "BLOCKING +views .*### Apps Dev. is empty"
 sed 's/^### Finance$/### Money/' "$brief_src" >"$proj/knowledge/brief.md"
-python3 "$validator" "$proj/knowledge/brief.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+uvpy "$validator" "$proj/knowledge/brief.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
   && grep -Eq "^WARNING +views .*Finance" "$tmpdir/case.out" || fail "a malformed Views section should be a warning at an atlas flow's default tier:
 $(cat "$tmpdir/case.out")"
+
+# The guard docsync runs on a shared draft's edits. docsync hands it a copy outside the project.
+guard="$repo_root/skills/helix/scripts/assessment-tables-guard"
+[ -x "$guard" ] || fail "the table guard should be executable"
+mkdir -p "$sb/copy"
+expect_guard() {  # expected status, copy, label; HELIX_GUARD_DOC is the caller's
+  local status=0
+  "$guard" "$2" >"$tmpdir/guard.out" 2>&1 || status=$?
+  [ "$status" = "$1" ] || fail "table guard ($3) should exit $1, not $status:
+$(cat "$tmpdir/guard.out")"
+}
+cp "$sb/TA-001.md" "$sb/copy/TA-001.md"
+HELIX_GUARD_DOC="$sb/TA-001.md" expect_guard 0 "$sb/copy/TA-001.md" "unchanged tables"
+sed 's/^| Script distribution |\(.*\)| none |$/| Script distribution | Changed in the draft | none |/' \
+  "$sb/TA-001.md" >"$sb/copy/TA-001.md"
+! cmp -s "$sb/TA-001.md" "$sb/copy/TA-001.md" || fail "the table guard fixture should change a generated table"
+HELIX_GUARD_DOC="$sb/TA-001.md" expect_guard 1 "$sb/copy/TA-001.md" "changed table"
+HELIX_GUARD_DOC="" expect_guard 2 "$sb/copy/TA-001.md" "no document named"
+HELIX_GUARD_DOC="$sb/case.md" expect_guard 2 "$sb/copy/TA-001.md" "another document named"
+[ -z "$(find "$sb" -name '.helix-guard.*')" ] || fail "the table guard should remove its probe"
 
 echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment, recommendation and weight blocks, keys, figure attributes, and reader views, and errors on unresolvable types"

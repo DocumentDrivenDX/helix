@@ -20,14 +20,14 @@ should happen against this fixture.
 ## Rebuild the cast
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-adopt/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-adopt/session.jsonl
 bash tests/validate-demos.sh
 ```
 
 ## Re-capture from a live agent
 
 ```
-python3 scripts/demos/capture_session.py helix-adopt \
+uv run --locked python scripts/demos/capture_session.py helix-adopt \
     --prompt "I just installed HELIX into this project. Scan what we have and tell me how to get started." \
     --fixture docs/demos/helix-adopt/fixture/
 ```

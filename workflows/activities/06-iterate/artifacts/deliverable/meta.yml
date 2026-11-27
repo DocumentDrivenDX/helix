@@ -99,8 +99,9 @@ validation:
       severity: warning
 
 reuse_policy: |
-  Draft while authoring. Before approval, pin every source link with
-  `skills/helix/scripts/pin-sources.py pin`; an approved or published
+  Draft while authoring. Before approval, pin every source link, with
+  `skills/helix/scripts/pin-sources.py pin` or by hand
+  (workflows/references/without-scripts.md); an approved or published
   deliverable is reproducible from those pinned revisions and is never
   changed by later edits to its sources. A source update means a new revision
   of the deliverable (or a new deliverable), re-pinned and re-reviewed, not an

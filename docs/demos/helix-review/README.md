@@ -24,14 +24,14 @@ The session's three findings map directly to these defects.
 ## Rebuild the cast
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-review/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-review/session.jsonl
 bash tests/validate-demos.sh
 ```
 
 ## Re-capture from a live agent
 
 ```
-python3 scripts/demos/capture_session.py helix-review \
+uv run --locked python scripts/demos/capture_session.py helix-review \
     --prompt "Use /helix review on bead-OAUTH-03 against its governing artifacts. Report every finding, file follow-on runtime work for blocking ones, and flag warnings." \
     --fixture docs/demos/helix-review/fixture/
 ```

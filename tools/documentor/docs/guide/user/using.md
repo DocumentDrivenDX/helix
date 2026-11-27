@@ -1,4 +1,4 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-11-02/codex-independent-reader/6bfb1bcdb1b98053 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-11-27/claude-author-diff-check/6bfb1bcdb1b98053 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
@@ -6,7 +6,7 @@
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:40fbab08748e28bb -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
 <!-- helix:source src/documentor/concourse.py sha256:e4f9103bf730d2eb -->

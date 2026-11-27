@@ -54,8 +54,10 @@ jobs:
 
       # This must gate the publisher itself: an independent guard can race
       # with asset upload and leave a mismatched release published.
+      - uses: astral-sh/setup-uv@v6
+
       - name: Validate release versions before building or publishing
-        run: python3 scripts/release-version.py "$GITHUB_REF_NAME"
+        run: uv run --locked python scripts/release-version.py "$GITHUB_REF_NAME"
 
       - name: Set tag name
         id: tag
@@ -132,6 +134,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Require the publisher app credentials
         env:
           CLIENT_ID: ${{ vars.PLUGINS_APP_CLIENT_ID }}
@@ -166,7 +170,7 @@ jobs:
       - name: Publish plugins/helix
         working-directory: dist/plugins-repo
         run: |
-          python3 ../../scripts/publish-plugin.py .
+          uv run --locked --project ../.. python ../../scripts/publish-plugin.py .
           git add --all plugins/helix
           if git diff --cached --quiet; then
             echo "plugins/helix is already current"

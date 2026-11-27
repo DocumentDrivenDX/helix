@@ -94,7 +94,7 @@ validation:
       severity: blocking
 
     - check: tables_generated_from_block
-      description: When the front matter carries an `assessment:` block, the Criteria and Comparison tables equal what `assessment-tables.py` makes from it, and every criterion has a finding or a stated gap for every subject
+      description: When the front matter carries an `assessment:` block, the Criteria and Comparison tables equal what the block makes (by `assessment-tables.py` or by hand, workflows/references/without-scripts.md), and every criterion has a finding or a stated gap for every subject
       severity: blocking
 
     - check: no_verdict_for_a_context

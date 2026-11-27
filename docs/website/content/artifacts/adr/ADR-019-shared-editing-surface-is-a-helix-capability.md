@@ -40,25 +40,32 @@ Five spikes tested the mechanics. Export-and-diff works but the export joins har
 We will make a shared editing surface a HELIX capability: a runtime-neutral mode, a host tool for the deterministic part, and one adapter reference per runtime surface. The maintainers chose to ship it now, ahead of the earlier plan to incubate it in the consuming repository, and to state the untested cases where the mode and the adapter use them. Specifically:
 
 1. **HELIX owns the contract.** A capability-gated mode: open a draft copy of a repo-authored document at a pinned base, take the edits the surface returns, and land them as a patch against that base so every untouched byte is identical. A runtime that offers a shared editing surface implements it; a runtime that does not is unaffected and edits the repository files directly. This sits beyond the minimal runtime contract, as CONTRACT-003 draws that boundary: HELIX portable behaviour ends there, and a runtime adapts HELIX content for its own surfaces.
-2. **The adapter is the runtime's, not the skill body's.** Claude Docs is the first adapter. The skill body names the capability, never the connector, so the portability target (zero runtime-specific commands in the skill body) holds.
+2. **The adapter is the runtime's, not the skill body's.** Claude Docs is the first surface, and its specifics live in the docsync plugin. The HELIX skill body names the capability, never the connector, so the portability target (zero runtime-specific commands in the skill body) holds.
 3. **Authoring home does not change.** A document edited through a draft copy stays `authoring.home: repo`. `external-tool` means the tool is the write surface and the repository holds a checked-in copy; this is the opposite relationship. The draft's document id, revision, and base are operational state, which the schema keeps out of `authoring` and leaves to the pull request or tracker. No field is added.
 4. **HELIX owns the checks that come from its own semantics.** Landing a patch refuses an edit to a generated table (an assessment's Criteria and Comparison tables, a position paper's Recommendations table) and points to the `assessment:` or `recommendations:` block, using `skills/helix/scripts/assessment-tables.py` as the check and never `--write` to hide a mismatch. It never edits frontmatter as text. It reports a moved base, and it reports which documents' file hashes the patch changes, so a consumer can stale its seals and reviews.
-5. **Ship the mode, the adapter, and the tool together.** `workflows/modes/shared-edit.md` is the mode, `workflows/references/shared-edit-claude-docs.md` is the Claude Docs adapter, and `tools/draftsync/` is the host tool (parse, word-level patch, three-way merge onto a moved base, generated-table guard, hash report). The skill routes to the mode and names no connector.
-6. **Say what is untested.** The adapter lists what was tested and what the tool refuses, and the mode's handoff reports when a draft goes beyond them. The export-and-diff fallback is documented in the adapter but draftsync does not normalize exports.
+5. **Ship the mode; take the adapter and the tool from docsync.** `workflows/modes/shared-edit.md` is the mode. The [docsync](https://github.com/DocumentDrivenDX/docsync) plugin is an optional companion that holds the surface adapter and the deterministic tool (parse, word-level patch, three-way merge onto a moved base, a guard slot). HELIX supplies the guard, `skills/helix/scripts/assessment-tables-guard`. Without docsync the mode says how to install it and stops; the rest of HELIX is unaffected.
+6. **Say what is untested.** docsync lists what was tested and what it refuses, and the mode's handoff reports what was refused.
 7. **Review state stays the consumer's policy.** The hash-keyed review ledger, the attestation a named person types at a terminal, seals, and the scan for client names are consumer choices. HELIX's living-document principle (`workflows/principles.md`) says review stamps gate nothing, and `ddx.review` is legacy metadata. The contract needs only item 4's report of changed hashes.
 
 ## Packaging
 
-HELIX allows one public skill (`tests/validate-skills.sh` requires `skills/helix/SKILL.md` as the single entrypoint and forbids separate `helix-*` skills) and keeps host vocabulary out of its body. The capability therefore adds no skill and no Claude-only plugin:
+HELIX allows one public skill (`tests/validate-skills.sh` requires `skills/helix/SKILL.md` as the single entrypoint and forbids separate `helix-*` skills) and keeps host vocabulary out of its body. HELIX therefore adds no skill of its own for this, declares no plugin dependency, and uses docsync's skill when it is installed:
 
 | Piece | Home |
 |---|---|
 | The workflow: open a draft at a pinned base, land edits as a patch, refuse generated tables, report changed hashes | `workflows/modes/shared-edit.md`, routed by the one skill |
-| The Claude Docs specifics: connector calls, the changed-blocks read, the export fallback | `workflows/references/shared-edit-claude-docs.md`, loaded only when the runtime has the connector; other runtimes ignore it |
-| The deterministic part: block parser, word-level patcher, merge, table guard | `tools/draftsync/`, tested by `just test-draftsync` |
+| The Claude Docs specifics: connector calls and the changed-blocks read | The docsync plugin |
+| The deterministic part: block parser, word-level patcher, merge | The docsync plugin |
+| The generated-table guard | `skills/helix/scripts/assessment-tables-guard`, passed to docsync |
 | Review ledger, attestation, seals, scan for client names | The consuming repository |
 
 ## Why We Chose This
+
+### Over HELIX maintaining its own tool
+HELIX first shipped the tool and the Claude Docs adapter itself, as draftsync under `tools/draftsync/` with an adapter reference under `workflows/references/`, released through v0.25.0. docsync is a port of it, made neutral between projects and extended for other manuscripts, in its own repository and plugin. Keeping both would mean two implementations of one merge and one adapter that drift. HELIX keeps what comes from its own semantics: which side wins, the generated-table guard, validation, and the changed-hash report. The cost is a companion that is installed separately, covers fewer hosts than a `uv` tool did, and has no edit hook.
+
+### Over declaring docsync a required plugin dependency now
+Claude Code installs a dependency listed in the same marketplace. In a test with sample plugins, a plugin whose dependency its marketplace did not list installed and then failed to load, and Codex did not install a listed dependency. HELIX's own marketplace does not list docsync, so requiring it would break the whole plugin there for the sake of one optional mode.
 
 ### Over keeping it in the consumer for good
 This was the first version of this decision, and it undersold HELIX's stake. HELIX already treats external editing as part of its model: `authoring.home: external-tool` has a checked-out and checked-in lifecycle, an origin URL, a connector field, and an export digest (`workflows/artifact-schema.md`). The checks that make a sync safe, generated tables, pinned sources, frontmatter that is never prose, are HELIX's own semantics, and a consumer that reimplements them will drift from them. A feature that improves how people and agents edit together is core to what HELIX is for.
@@ -66,8 +73,8 @@ This was the first version of this decision, and it undersold HELIX's stake. HEL
 ### Over incubating in the consumer first
 The earlier version of this decision incubated the mapper and patcher in the consuming repository and promoted on evidence. The maintainers chose to ship now. The risk named then still stands: the contract is written from one adapter and one read path proven on one document type, edited by tool. The mitigation is that the tool is small and deterministic, is tested against the whole of this repository's Markdown and the consumer's `knowledge/` (replacing every paragraph, heading and item with its own unwrapped text changes no byte), refuses what it cannot do safely, and that the adapter says which cases are untested.
 
-### Over a separate standalone sync tool or MCP server
-A server cannot call the connector. The deterministic parts (map, patch, check, open the PR) fit the host-tool pattern ADR-015 already accepted, and that is where item 6 puts them.
+### Over a standalone sync server
+A server cannot call the connector. The deterministic parts (map, patch, merge, check) are an offline command line that an agent drives, and docsync keeps that shape.
 
 ### Over moving the review ledger into HELIX
 The ledger is keyed by whole-file hash, and it sits outside the file because a review written into the file changes the hash and stales itself. HELIX's documentor avoids the same circularity another way: its `reviewed` stamp sits in a page header the body digest excludes (`tools/documentor/src/documentor/cli.py`). That suits generated pages whose header HELIX controls, not a governed document whose whole-file hash is the seal key, so merging the two would force each to carry the other's constraints.
@@ -76,7 +83,7 @@ The ledger is keyed by whole-file hash, and it sits outside the file because a r
 
 **Good**: HELIX gets a defined path to bidirectional editing without committing the skill to one vendor. The consumer builds against a stable HELIX (structured blocks, generated tables, pinned sources) and gets table safety from an existing check. The abstraction is extracted from working code.
 
-**Trade-offs**: The untested spike cases ship as stated limits. The ledger and attestation have no HELIX validation. HELIX now maintains a tool whose only runtime today is one connector, and it has no version of its own, so it is not in the release version sync that documentor has.
+**Trade-offs**: The untested cases ship as docsync's stated limits. The ledger and attestation have no HELIX validation. The mode depends on a companion with its own version and release, whose only surface today is one connector. HELIX does not pin a docsync version, so a docsync change can alter the mode's behaviour without a HELIX release.
 
 **Drift signals to watch**: Docs-specific string handling (`\[`, a byline) in HELIX scripts or mode files; the skill body naming a connector; HELIX gaining a field for a document id or revision; a consumer editing a generated table with `--write` to make a sync pass; an attestation written by an agent; review state in a document's frontmatter in a consumer that keys seals on the file hash; the adapter's untested list growing without anyone running the cases.
 
@@ -107,7 +114,9 @@ The fourth spike also showed that the opening revision is readable (`atRev`), so
 
 | Trigger | Move |
 |---|---|
-| A case outside what was tested (a new table, a numbered nested list, another surface) fails in use | Add it to draftsync, or make the export fallback the supported path with an export normalizer |
+| A case outside what was tested fails in use | Report it to docsync with the input that failed |
+| HELIX's own marketplace is retired in favour of one that lists docsync | Reconsider declaring docsync a plugin dependency for Claude Code |
+| docsync stops meeting HELIX's rules (the guard, a conflict side, refusal over guessing) | Fix it there, or pin the docsync version the mode accepts |
 | A second editing surface is wanted | Write a CONTRACT from the two adapters and move the shared edit format out of the script header |
 | Landing a patch to a generated table becomes wanted | Add a table-to-block write-back to `assessment-tables.py`; until then, refuse |
 | A consumer other than Atlas needs hash-keyed review state | Reopen the ledger question as its own ADR; check it against the living-document principle first |

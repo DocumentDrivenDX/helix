@@ -8,6 +8,8 @@
 # rebuilds it).
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 demos_root="$repo_root/docs/demos"
 cast_root="$repo_root/website/static/demos"
@@ -30,21 +32,21 @@ if (( ${#sessions[@]} == 0 )); then
 fi
 
 # Schema-level validation.
-python3 "$validate" "${sessions[@]}" || fail "session schema validation failed"
+uvpy "$validate" "${sessions[@]}" || fail "session schema validation failed"
 
 # Assertion check for demos that ship an assertions.yml.
 demo_dirs=()
 for s in "${sessions[@]}"; do
   demo_dirs+=("$(dirname "$s")")
 done
-python3 "$check_assertions" "${demo_dirs[@]}" || fail "demo assertions failed"
+uvpy "$check_assertions" "${demo_dirs[@]}" || fail "demo assertions failed"
 
 # Render each, compare to committed cast.
 for session in "${sessions[@]}"; do
   slug="$(basename "$(dirname "$session")")"
   expected="$cast_root/${slug}.cast"
   rendered="$(mktemp)"
-  python3 "$render" "$session" --output "$rendered" >/dev/null \
+  uvpy "$render" "$session" --output "$rendered" >/dev/null \
     || fail "render failed for $slug"
 
   if [[ -f "$expected" ]]; then
@@ -62,18 +64,18 @@ done
 # Smoke-test capture_session.py: translate a committed stream-json fixture
 # through the script and assert the produced session.jsonl parses cleanly.
 smoke_session="$(mktemp)"
-python3 "$capture" helix-smoke \
+uvpy "$capture" helix-smoke \
   --prompt "smoke" \
   --from-stream "$capture_fixture" \
   --output "$smoke_session" >/dev/null \
   || fail "capture_session.py --from-stream failed"
-python3 "$validate" "$smoke_session" >/dev/null \
+uvpy "$validate" "$smoke_session" >/dev/null \
   || fail "capture_session.py produced a session that fails schema validation"
 
 # Sanity-check the translation: the fixture has 1 user prompt + 2 tool_use +
 # 2 tool_result + 2 assistant-text events. After translation the
 # session.jsonl should contain matching counts.
-python3 - "$smoke_session" <<'PY' || fail "capture_session.py translation counts wrong"
+uvpy - "$smoke_session" <<'PY' || fail "capture_session.py translation counts wrong"
 import json, sys
 path = sys.argv[1]
 counts = {"tool_call": 0, "tool_result": 0, "assistant": 0, "prompt": 0, "meta": 0}

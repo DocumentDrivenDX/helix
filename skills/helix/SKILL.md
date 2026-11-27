@@ -319,6 +319,16 @@ authoring modes resolve its `prose.*` findings with the writing pass
 (`workflows/references/writing-pass.md`, floor
 `references/references/writing-pass.md`) before handoff. No other prose tool is required.
 
+## Scripts Are Optional
+
+No mode requires running code. The scripts beside this skill make some checks
+repeatable, and `workflows/references/without-scripts.md` (floor
+`references/references/without-scripts.md`) says how to do each by hand. Run a
+script only as `uv run --script scripts/<name>.py` from this skill's directory.
+When uv or a shell is missing, or a script fails to start, work by hand and say
+which checks the script did not run. Never run one with another Python or
+install packages for it.
+
 ## Project Root Resolution
 
 When a mode enumerates instances in the operator's project, resolve the
