@@ -30,7 +30,7 @@ and [walkthrough](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix
 ## Prerequisites and setup
 
 Clone the repository and run commands from its root. Use Git, Bash, Python 3.11+
-with PyYAML, `uv`, and `just` for the core content workflow. The full suite also renders
+with `uv` and `just` for the core content workflow. The full suite also renders
 decks through documentor; `uv run --project tools/documentor documentor doctor` lists the Node, LibreOffice, and
 `pdftoppm` it needs. Hugo and Node support website work.
 
@@ -45,7 +45,7 @@ Project-local skill symlinks also point at the source skill.
 ```bash
 git clone https://github.com/DocumentDrivenDX/helix.git
 cd helix
-python3 -c 'import yaml; print("PyYAML available")'
+uv sync
 bash tests/validate-skills.sh
 ```
 
@@ -53,10 +53,15 @@ Success means the skills validator exits zero. This checks content and packaging
 contracts; it does not prove that a live model will follow every instruction.
 No model credentials are needed for deterministic repository checks.
 
-If `import yaml` fails, install PyYAML in your chosen Python environment and
-repeat the check. With `uv` available, `uv run --with pyyaml python3` supplies
-that dependency; run the commands below in the same environment, for example
-`uv run --with pyyaml just test`. Dependency installation needs package access.
+All Python here runs through uv. `pyproject.toml` and `uv.lock` hold the
+repository's environment, scripts that ship to users declare their own
+dependencies inline and are locked, and `tools/documentor/` is its own project.
+Run a repository script with `uv run --locked python <script>`, and a script with
+inline metadata with `uv run --script <script>`. Add a dependency with
+`uv add <package>` (or `uv add --script <script> <package>`), never pip.
+`tests/test_python_policy.py` checks this, and that every script beside the skill
+has a by-hand route in `workflows/references/without-scripts.md`. Dependency
+installation needs package access.
 The deck lane reports a skip when its rendering tools are unavailable; retain
 that message rather than treating it as rendered evidence.
 
@@ -80,7 +85,7 @@ source tree. Preserve existing document frontmatter when editing.
 1. Pick one confusing instruction in an artifact type you understand. Read its
    `template.md`, `prompt.md`, `meta.yml`, and `example.md` together.
 2. Make the instruction concrete and update its example to demonstrate it.
-3. Run `python3 scripts/helix_validate_artifact_meta.py` and
+3. Run `uv run --locked python scripts/helix_validate_artifact_meta.py` and
    `bash tests/validate-skills.sh`; success is exit zero from both.
 4. Inspect the diff for changed meaning, broken paths, and generated drift.
 5. Run `just test` and `git diff --check` before submitting; retain any failure
@@ -98,9 +103,9 @@ template headings. Define the artifact's authority and explain when it is useful
 For relationship or metadata changes, regenerate the graph:
 
 ```bash
-python3 scripts/generate_graph.py
-python3 scripts/generate-reference.py
-python3 scripts/helix_validate_artifact_meta.py
+uv run --locked python scripts/generate_graph.py
+uv run --script scripts/generate-reference.py
+uv run --locked python scripts/helix_validate_artifact_meta.py
 bash tests/validate-skills.sh
 ```
 
@@ -125,8 +130,8 @@ with `scripts/build-plugin-package.sh`; do not hand-edit generated references.
 
 | Symptom | First check | Next action |
 |---|---|---|
-| Catalog graph differs | `python3 scripts/generate_graph.py` | Inspect source metadata and generated diff |
-| Type sections fail validation | `python3 scripts/helix_validate_artifact_meta.py` | Compare metadata with template headings |
+| Catalog graph differs | `uv run --locked python scripts/generate_graph.py` | Inspect source metadata and generated diff |
+| Type sections fail validation | `uv run --locked python scripts/helix_validate_artifact_meta.py` | Compare metadata with template headings |
 | Packaged behavior differs | `bash tests/validate-plugin-package.sh` | Check generated references against canonical workflows |
 | Catalog cannot resolve | `bash tests/validate-plugin-catalog-resolution.sh` | Inspect the skill's catalog fall-through rules |
 | Website links look wrong | Local URL includes `/helix/` | Use `bash website/scripts/serve-local.sh` (needs Hugo; serves `http://eitri:1315/helix/`) |
