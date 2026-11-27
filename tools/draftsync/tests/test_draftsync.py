@@ -1082,6 +1082,81 @@ def test_writer_deletes_a_whole_table_with_one_op_and_checks_row_widths():
     assert [o for o in out["ops"] if o["op"] == "insert"] == [] and any("by hand" in r for r in out["report"])
 
 
+def added_paragraphs(*units):
+    """A draft read of paragraphs with the given (id, text) pairs."""
+    return "<doc node='n' rev='1'>" + "".join(
+        f"<paragraph id='{i}'><text id='{i}t'>{t}</text></paragraph>" for i, t in units) + "</doc>"
+
+
+FIRST, LAST = ("s.1", "First paragraph here."), ("s.2", "Last paragraph here.")
+LANDED_BASE = "First paragraph here.\n\nLast paragraph here.\n"
+
+
+def landed(file_blocks, *draft_added):
+    """The write-back when the draft gained `draft_added` since OLD and the file now has `file_blocks` between."""
+    return ds.doc_ops(LANDED_BASE, "\n\n".join([FIRST[1], *file_blocks, LAST[1]]) + "\n",
+                      added_paragraphs(FIRST, LAST), added_paragraphs(FIRST, *draft_added, LAST), "git")
+
+
+def inserted(out):
+    return [(o["target"]["ids"], o["source"]["from"]["content"]) for o in out["ops"] if o["op"] == "insert"]
+
+
+def test_writer_does_not_insert_a_block_the_draft_added_and_git_already_holds():
+    out = landed(["A reviewer added this one."], ("s.3", "A reviewer added this one."))
+    assert out == {"ops": [], "report": []}
+
+
+def test_writer_leaves_a_draft_added_block_that_git_reworded_to_a_person():
+    out = landed(["A reviewer added that one."], ("s.3", "A reviewer added this one."))
+    assert out["ops"] == []
+    assert len(out["report"]) == 1 and "similar block" in out["report"][0]
+
+
+def test_writer_pairs_every_exact_landed_block_before_any_near_one():
+    out = landed(["A reviewer added that one.", "A reviewer added this one."], ("s.3", "A reviewer added this one."))
+    assert out["report"] == []
+    assert inserted(out) == [(["s.1"], "A reviewer added that one.")]
+
+
+def test_writer_pairs_each_draft_added_block_only_once():
+    out = landed(["A reviewer added this one.", "A reviewer added this one."], ("s.3", "A reviewer added this one."))
+    assert [c for _, c in inserted(out)] == ["A reviewer added this one."]
+
+
+def test_writer_puts_a_git_block_after_the_landed_block_it_follows():
+    out = landed(["A reviewer added this one.", "Git wrote something else entirely."], ("s.3", "A reviewer added this one."))
+    assert out["report"] == []
+    assert inserted(out) == [(["s.3"], "Git wrote something else entirely.")]
+
+
+def test_writer_still_inserts_a_block_that_repeats_one_the_draft_already_had():
+    out = landed(["Last paragraph here."])
+    assert inserted(out) == [(["s.2"], "Last paragraph here.")]
+
+
+def table_draft(*rows):
+    """A draft read of a one-column-pair table; each row is (id, first cell, second cell)."""
+    def cell(i, t):
+        return f"<cell id='{i}'><paragraph id='{i}p'><text id='{i}t'>{t}</text></paragraph></cell>"
+    return "<doc node='n' rev='1'><table id='s.9' h='tt'>" + "".join(
+        f"<row id='{i}'>{cell(i + 'a', a)}{cell(i + 'b', b)}</row>" for i, a, b in rows) + "</table></doc>"
+
+
+HEAD, ROW_A, ROW_B = ("s.1", "name", "role"), ("s.2", "Ada", "keeper"), ("s.3", "Brunel", "visiting engineer")
+TABLE_BASE = "| name | role |\n|---|---|\n| Ada | keeper |\n"
+
+
+def test_writer_does_not_insert_a_table_row_the_draft_added_and_git_already_holds():
+    old, now = table_draft(HEAD, ROW_A), table_draft(HEAD, ROW_A, ROW_B)
+    out = ds.doc_ops(TABLE_BASE, TABLE_BASE + "| Brunel | visiting engineer |\n", old, now, "git")
+    assert out == {"ops": [], "report": []}
+    out = ds.doc_ops(TABLE_BASE, TABLE_BASE + "| Brunel | visiting engineers |\n", old, now, "git")
+    assert out["ops"] == [] and len(out["report"]) == 1 and "similar block" in out["report"][0]
+    out = ds.doc_ops(TABLE_BASE, TABLE_BASE + "| Brunel | visiting engineer |\n| Curie | chemist |\n", old, now, "git")
+    assert out["report"] == [] and [o["target"]["ids"] for o in out["ops"]] == [["s.3"]]
+
+
 # ---- packaging: a uv tool released with HELIX --------------------------------------------------------------
 
 def test_the_vendored_table_check_equals_the_skills_copy_and_the_version_follows_the_plugin():

@@ -761,6 +761,43 @@ def _same(a: str, b: str) -> bool:
     return [_key(w) for w in a.split()] == [_key(w) for w in b.split()]
 
 
+def _pair_landed(lm, bm, new_blocks: list[int], old: OldDoc, now: OldDoc) -> tuple[dict[int, str], dict[int, str]]:
+    """Pair new file blocks with blocks the draft added since OLD, as happens once a draft's addition lands in git.
+
+    `new_blocks` is relative to the base, so it still holds them. Returns two maps of file block index -> draft
+    unit id: the pairs with the same words, and the pairs whose text is only similar."""
+    born = [u for u in now.order if u not in old.tag]
+
+    def draft_words(u: str) -> str:
+        return " ".join(c[1] for c in now.cells[u]) if u in now.cells else now.md.get(u, "")
+
+    def file_words(m: int) -> str:
+        t = block_texts(lm, bm[m])
+        return ESCAPED.sub(r"\1", " ".join(t) if isinstance(t, list) else t)
+
+    def comparable(u: str, m: int) -> bool:
+        return (u in now.cells) == (bm[m].kind == "row") and bool(alnum(draft_words(u))) and bool(alnum(file_words(m)))
+
+    exact: dict[int, str] = {}
+    for m in new_blocks:                                    # every exact pair is found before any near one
+        u = next((u for u in born if comparable(u, m) and _same(draft_words(u), file_words(m))), None)
+        if u is not None:
+            born.remove(u)
+            exact[m] = u
+    near: dict[int, str] = {}
+    for u in born:
+        best, best_r = None, 0.0
+        for m in new_blocks:
+            if m in exact or m in near or not comparable(u, m):
+                continue
+            r = difflib.SequenceMatcher(None, alnum(draft_words(u)), alnum(file_words(m)), autojunk=False).ratio()
+            if r >= 0.8 and r > best_r:
+                best, best_r = m, r
+        if best is not None:
+            near[best] = u
+    return exact, near
+
+
 def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: str) -> dict:
     """The doc `update` ops that bring the file's changes since the base into the draft as it is now.
 
@@ -902,7 +939,15 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
             replace_in(uid, old.md[uid], target, now.md[uid], now.plain[uid], None)
 
     anchor_of_m = {m: ids[b] for b, m in mapping.items() if b in ids and ids[b] in now.order}
+    landed, similar = _pair_landed(lm, bm, new_blocks, old, now)
+    anchor_of_m.update(landed)                  # the draft holds these, so later insertions go after them
+    anchor_of_m.update(similar)
     for m_idx in new_blocks:
+        if m_idx in landed:
+            continue
+        if m_idx in similar:
+            report.append(f"file block {m_idx}: the draft added a similar block with different text; compare them by hand")
+            continue
         b = bm[m_idx]
         prev = next((anchor_of_m[k] for k in range(m_idx - 1, -1, -1) if k in anchor_of_m), None)
         before = bm[m_idx - 1].kind if m_idx else None
