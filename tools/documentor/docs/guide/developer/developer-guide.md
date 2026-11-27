@@ -1,10 +1,10 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-12/guide-review/a55e460490bc31db -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-26/claude-independent-reader/9ea60e329361e8db -->
 <!-- helix:source pyproject.toml sha256:8c86c25908cbef00 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/test.yml sha256:765c7d505cc24d0e -->
+<!-- helix:source ../../.github/workflows/test.yml sha256:7ca950a8833cb294 -->
 <!-- helix:source ../../scripts/release-version.py sha256:abae9d19948ac6e5 -->
 <!-- helix:source ../../.github/workflows/release-ui.yml sha256:749110da960fb612 -->
-<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->
+<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:5a66e080c8ecc1b1 -->
 <!-- helix:source ../../.github/workflows/release-tag.yml sha256:480303d12dfda08e -->
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:859a4661f0e50d93 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
@@ -36,7 +36,7 @@ uv sync
 uv run just test
 ```
 
-`uv sync` creates `.venv` with the one runtime dependency (`pyyaml>=6`) and the `dev` group (`pytest>=8`). Each passing test script prints an `OK:` line. A failing script prints `FAIL:` with the reason and stops the run.
+`uv sync` creates `.venv` with the one runtime dependency (`pyyaml>=6`) and the `dev` group (`pytest>=8`). A passing test script prints an `OK:` line; `validate-architecture-tour.sh` prints `PASS:`. A failure stops the run; most checks print `FAIL:`.
 
 To check that the working copy's CLI runs:
 
@@ -129,10 +129,10 @@ uv run python -m pytest -q tests/python/test_schemas.py tests/python/test_tempo_
 uv run just test
 ```
 
-CI is HELIX's `documentor` workflow. It runs on pull requests and pushes to `main` that touch documentor, HELIX's publish catalog, or HELIX's voice profiles.
+CI is the `documentor` job in HELIX's `Test` workflow. It runs on pull requests matching its path filter, and on manual, weekly, and release runs, but not pushes to `main`.
 
 <details>
-<summary>The CI job, from HELIX's documentor workflow</summary>
+<summary>The CI job, from HELIX's <code>Test</code> workflow</summary>
 
 ```yaml
 - uses: astral-sh/setup-uv@v6
@@ -179,13 +179,13 @@ To make a change, edit the module or catalog file, add an assertion to the match
 
 2. Make the change. For example, to change which files a trait detects, edit its YAML under `src/documentor/catalog/traits/`.
 
-3. Add an assertion to the matching script. Each script runs the CLI in a scratch repository and calls `fail` on a wrong result:
+3. Add an assertion to the matching script. Scripts exit with an error on a wrong result:
 
    ```sh
    fail() { echo "FAIL: $*" >&2; exit 1; }
    ```
 
-4. Run the suite, then everything. Every script ends with an `OK:` line:
+4. Run the suite, then everything:
 
    ```sh
    uv run just test-traits
@@ -218,7 +218,7 @@ A change to the CLI's behaviour may change the pages in `docs/guide/`. `uv run d
 uv run documentor status
 ```
 
-When written pages name a HELIX artifact the repository lacks, the report ends with `Artifacts that would improve the guide`. Each line names the artifact and the pages written without it, most pages first.
+When written pages name a HELIX artifact the repository lacks, the report includes `Artifacts that would improve the guide`. Each line names the artifact and the pages written without it, most pages first.
 
 ## Releasing
 
@@ -240,6 +240,8 @@ Obtain a separately authorized release scope from the HELIX release owner before
    The tag workflow checks all nine version fields. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
 
    It dispatches bundle publication, install smoke tests, and the Pages build. Bundle publication validates versions before any build or upload and publishes the draft with new assets and its original notes.
+
+   It then publishes `plugins/helix` to the organization marketplace; [AGENTS.md](../../../../../AGENTS.md) lists what that needs.
 
    For local preparation, run from the HELIX root and open a `chore(release): vX.Y.Z` PR:
 
