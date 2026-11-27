@@ -40,6 +40,9 @@ required_paths=(
   ".claude-plugin/plugin.json"
   ".claude-plugin/marketplace.json"
   ".codex-plugin/plugin.json"
+  "LICENSE"
+  "LICENSE-MIT"
+  "LICENSE-APACHE"
   "hooks/hooks.json"
   "$SRC_SKILL"
   "skills/helix/scripts/validate-instance.py"
@@ -80,6 +83,7 @@ PY
 rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR/.claude-plugin" "$OUT_DIR/.codex-plugin" "$OUT_DIR/hooks" "$OUT_DIR/skills/helix"
 
+cp -f LICENSE LICENSE-MIT LICENSE-APACHE "$OUT_DIR/"
 cp -f .claude-plugin/plugin.json "$OUT_DIR/.claude-plugin/plugin.json"
 cp -f .claude-plugin/marketplace.json "$OUT_DIR/.claude-plugin/marketplace.json"
 cp -f .codex-plugin/plugin.json "$OUT_DIR/.codex-plugin/plugin.json"

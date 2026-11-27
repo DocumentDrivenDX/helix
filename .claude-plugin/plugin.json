@@ -8,6 +8,6 @@
   },
   "homepage": "https://github.com/DocumentDrivenDX/helix",
   "repository": "https://github.com/DocumentDrivenDX/helix",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "skills": "./skills/"
 }

@@ -37,6 +37,23 @@ The local microsite review server must use the `/helix` base path. Do not
 restart it at the domain root; paths such as
 `http://eitri:1315/artifact-types/...` are invalid for local review.
 
+The release workflow (`.github/workflows/release-genie-bundle.yml`) publishes
+each release tag twice: as GitHub release assets, and as `plugins/helix` in the
+organization marketplace,
+[DocumentDrivenDX/plugins](https://github.com/DocumentDrivenDX/plugins). The
+marketplace push uses the `PLUGINS_DEPLOY_KEY` secret. The marketplace file
+there must list `helix` at `./plugins/helix`. Publishing refuses to change the
+content of a version already published or to replace it with an older one. This
+repository's own marketplace (`helix@helix`) stays in service; the organization
+marketplace is the one to standardize on.
+
+To see what a release would publish, run the recipe against your own checkout of
+that repository. It commits and pushes nothing.
+
+```bash
+just publish-plugin ../plugins
+```
+
 Deploy to a Databricks workspace (Genie) as a skill bundle uploaded via the
 Databricks SDK (no Databricks CLI required). Full runbook:
 [docs/install/databricks-genie.md](docs/install/databricks-genie.md).

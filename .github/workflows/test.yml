@@ -75,6 +75,9 @@ jobs:
       - name: Validate release versioning
         run: python3 tests/test_release_version.py
 
+      - name: Validate marketplace publishing
+        run: python3 tests/test_publish_plugin.py
+
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh
 

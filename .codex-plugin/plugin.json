@@ -8,7 +8,7 @@
   },
   "homepage": "https://documentdrivendx.github.io/helix/",
   "repository": "https://github.com/DocumentDrivenDX/helix",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "keywords": [
     "helix",
     "document-driven-development",

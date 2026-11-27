@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-draftsync test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-release-version test-publish-plugin test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-draftsync test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
 # packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
@@ -192,6 +192,15 @@ test-ux-governance:
 # Requirement-linked verification, conditional supplements and naming contracts.
 test-verification-contract:
     python3 tests/test_verification_contract.py
+
+# Copy the plugin package into a DocumentDrivenDX/plugins checkout (commits and pushes nothing)
+publish-plugin checkout:
+    bash scripts/build-plugin-package.sh
+    python3 scripts/publish-plugin.py {{quote(absolute_path(checkout))}}
+
+# Publishing into the organization marketplace
+test-publish-plugin:
+    python3 tests/test_publish_plugin.py
 
 # Release versions and publication ordering regression checks
 test-release-version:
