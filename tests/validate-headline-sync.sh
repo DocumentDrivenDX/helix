@@ -6,13 +6,15 @@
 # 2. When the sloptimizer source is present on this machine, the vendored
 #    fixture must match it byte for byte; otherwise re-sync (see .SOURCE).
 set -euo pipefail
+
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fixture="$repo_root/tests/fixtures/validate-deliverable/headline-cases.json"
 source_note="$repo_root/tests/fixtures/validate-deliverable/headline-cases.SOURCE"
 fail() { printf 'headline sync failed: %s\n' "$*" >&2; exit 1; }
 [[ -f "$fixture" && -f "$source_note" ]] || fail "vendored fixture or .SOURCE note missing"
 
-python3 - "$repo_root/skills/helix/scripts/check-deliverable.py" "$fixture" <<'PYEOF' || fail "title_slop() disagrees with sloptimizer's headline fixtures"
+uvpy - "$repo_root/skills/helix/scripts/check-deliverable.py" "$fixture" <<'PYEOF' || fail "title_slop() disagrees with sloptimizer's headline fixtures"
 import importlib.util, json, sys
 spec = importlib.util.spec_from_file_location("cd", sys.argv[1])
 mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
@@ -61,7 +63,7 @@ if [[ -n "$upstream" ]]; then
               "_TAXONOMY:SloptimizerExternal/InternalTaxonomy.yml" "_MARKETING:SloptimizerExternal/MarketingRegister.yml"; do
     attr="${pair%%:*}"; yml="$styles/${pair#*:}"
     [[ -f "$yml" ]] || continue
-    python3 - "$repo_root/skills/helix/scripts/check-deliverable.py" "$yml" "$attr" <<'PYEOF' || fail "$attr in check-deliverable.py differs from sloptimizer's ${pair#*:} tokens; re-vendor the list"
+    uvpy - "$repo_root/skills/helix/scripts/check-deliverable.py" "$yml" "$attr" <<'PYEOF' || fail "$attr in check-deliverable.py differs from sloptimizer's ${pair#*:} tokens; re-vendor the list"
 import importlib.util, sys
 spec = importlib.util.spec_from_file_location("cd", sys.argv[1]); mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 tokens, intok = [], False

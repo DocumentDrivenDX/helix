@@ -369,7 +369,7 @@ def run_check(paths: list[Path], root: Path | None, strict_prose: bool) -> Findi
         if config_file.is_file() and re.search(r"^(handling|  scope):", config_file.read_text(encoding="utf-8"), re.M):
             findings.add("blocking", "handling", config_file,
                          "the project sets handling or publish.scope, which need PyYAML to check: "
-                         "`pip install pyyaml`, or run the check with `uvx documentor`")
+                         "run the check with `uvx documentor`, which supplies it")
         findings.notes.append("prose, handling, and unmapped checks skipped: they need PyYAML")
     return findings
 

@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-python3 "$repo_root/scripts/validate_actions.py" || {
+uvpy "$repo_root/scripts/validate_actions.py" || {
   printf 'action prompt validation failed\n' >&2
   exit 1
 }
 
-python3 "$repo_root/scripts/helix_evolve_impact.py" \
+uvpy "$repo_root/scripts/helix_evolve_impact.py" \
   --docs-root "$repo_root/tests/fixtures/evolve-impact/canonical-links/docs/helix" \
   --entry FEAT-001 \
   --require-upstream \
@@ -19,7 +21,7 @@ python3 "$repo_root/scripts/helix_evolve_impact.py" \
     exit 1
   }
 
-python3 "$repo_root/scripts/helix_evolve_impact.py" \
+uvpy "$repo_root/scripts/helix_evolve_impact.py" \
   --docs-root "$repo_root/tests/fixtures/evolve-impact/legacy-fields/docs/helix" \
   --entry FEAT-LEGACY \
   --require-upstream \

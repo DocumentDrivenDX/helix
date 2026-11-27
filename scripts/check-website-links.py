@@ -8,7 +8,7 @@ anchors are skipped. The site is built with a base path (default `/helix/`),
 so root-absolute links carry that prefix and are mapped back to `public/`.
 
 Usage:
-    python3 scripts/check-website-links.py [--public DIR] [--base-path /helix/]
+    uv run --locked python scripts/check-website-links.py [--public DIR] [--base-path /helix/]
 
 Exit codes:
     0  all internal links and images resolve

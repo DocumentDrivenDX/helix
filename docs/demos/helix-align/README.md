@@ -23,7 +23,7 @@ find.
 From the repo root:
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-align/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-align/session.jsonl
 bash tests/validate-demos.sh
 ```
 
@@ -33,7 +33,7 @@ produces the same `.cast`.
 ## Re-capture from a live agent
 
 ```
-python3 scripts/demos/capture_session.py helix-align \
+uv run --locked python scripts/demos/capture_session.py helix-align \
     --prompt "Run /helix align on this project and produce an authority-ranked plan to resolve any contradictions." \
     --fixture docs/demos/helix-align/fixture/
 ```

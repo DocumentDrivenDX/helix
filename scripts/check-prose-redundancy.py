@@ -8,7 +8,7 @@ pairs whose Jaccard similarity is above a threshold. Use it to consolidate
 restated content into one canonical place + cross-link.
 
 Usage:
-    python3 scripts/check-prose-redundancy.py [--threshold 0.25] [--top 25]
+    uv run --locked python scripts/check-prose-redundancy.py [--threshold 0.25] [--top 25]
 
 Exit codes:
     0  no cross-file pairs above the threshold

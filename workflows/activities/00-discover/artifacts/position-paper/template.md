@@ -9,7 +9,7 @@ ddx:
     # - {id: <technology brief id>, kind: supported_by, rev: <pinned revision>}
     # - {id: <other paper or assessment id>, kind: contradicts}
 # Optional: stances as data. The Recommendations table below is then generated from it
-# (`assessment-tables.py --write`).
+# (`assessment-tables.py`, or by hand: workflows/references/without-scripts.md).
 # recommendations:
 #   - subject: <technology brief id>
 #     context: <the context the stance is for>

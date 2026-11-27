@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pyyaml>=6"]
+# ///
 """Pin, check, and materialize the sources a HELIX document cites.
 
 Usage:
@@ -25,7 +29,7 @@ from pathlib import Path
 try:
     import yaml
 except ImportError:  # pragma: no cover
-    print("error: PyYAML required", file=sys.stderr); sys.exit(2)
+    print("error: PyYAML is not available; run this script with `uv run --script`, or work by hand (workflows/references/without-scripts.md)", file=sys.stderr); sys.exit(2)
 
 PIN_KINDS = {"informed_by", "evaluates", "supported_by"}
 FM = re.compile(r"\A---\n(.*?)\n---\n", re.S)

@@ -73,7 +73,7 @@ animation) and emits an asciicast. The .cast files are also committed under
 2. If `assertions.yml` is present, it holds against the session — expected
    tool calls fired in order, expected text produced, minimum
    duration/assistant-char thresholds met (`scripts/demos/check_assertions.py`).
-3. `python3 scripts/demos/render_session.py docs/demos/<slug>/session.jsonl`
+3. `uv run --locked python scripts/demos/render_session.py docs/demos/<slug>/session.jsonl`
    produces a `.cast` byte-identical to the committed one. A diff fails CI
    and forces an intentional re-render + recommit.
 
@@ -107,7 +107,7 @@ or after the previous match — which catches out-of-order regressions.
 ## Capturing new sessions
 
 ```
-python3 scripts/demos/capture_session.py helix-<slug> \
+uv run --locked python scripts/demos/capture_session.py helix-<slug> \
     --prompt "..." \
     --fixture docs/demos/helix-<slug>/fixture/
 ```

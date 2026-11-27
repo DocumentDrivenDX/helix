@@ -1,10 +1,10 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-release-version test-publish-plugin test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-python-policy test-release-version test-publish-plugin test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
-# packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
+# packaged catalog's match with workflows/. CI runs it in the documentor job of .github/workflows/test.yml.
 test-documentor:
     cd tools/documentor && uv run just test
 
@@ -77,7 +77,7 @@ lint-prose:
 
 # Surface cross-file paragraph duplication that token-level Vale rules miss
 check-prose-redundancy:
-    python3 scripts/check-prose-redundancy.py
+    uv run --locked python scripts/check-prose-redundancy.py
 
 # Verify generated/published site content is current and complete
 test-website-generated:
@@ -85,13 +85,13 @@ test-website-generated:
 
 # Validate artifact-type schemas (meta.yml required_sections <-> template.md H2s)
 validate-artifact-schemas:
-    python3 scripts/helix_validate_artifact_meta.py
+    uv run --locked python scripts/helix_validate_artifact_meta.py
 
 # Check internal links + images in a production-shaped build (with the /helix base path)
 check-website-links:
     uv run --project tools/documentor documentor schemas --root .
     cd website && hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/" >/dev/null
-    python3 scripts/check-website-links.py
+    uv run --locked python scripts/check-website-links.py
 
 # Exercise the real UMF browser and definition links beneath /helix/.
 test-schema-browser:
@@ -108,11 +108,12 @@ genie-build:
 # Install the Genie bundle to a Databricks workspace
 # Requires DATABRICKS_HOST and DATABRICKS_TOKEN env vars
 genie-install:
-    python scripts/install-genie.py
+    uv run --script scripts/install-genie.py
 
-# Verify a Genie install (offline static checks, no chat API)
+# Verify a Genie workspace install (static checks, no chat API)
+# Requires DATABRICKS_HOST and DATABRICKS_TOKEN env vars
 genie-verify:
-    python scripts/verify-genie.py
+    uv run --script scripts/verify-genie.py
 
 # Run the per-runtime install test scenarios (Docker + screencasts)
 install-test:
@@ -121,7 +122,7 @@ install-test:
 # Validate demo session records, renders, and the assertions parser
 test-demos:
     bash tests/validate-demos.sh
-    PYTHONPATH=. python3 tests/test_check_assertions_parser.py
+    PYTHONPATH=. uv run --locked python tests/test_check_assertions_parser.py
 
 # Show test count
 count:
@@ -138,7 +139,7 @@ test-deck-render:
 
 # Run the headless skill eval with rubric scoring (calls the host per brief; costs money and minutes)
 eval:
-    python3 scripts/run-eval.py --judge
+    uv run --locked python scripts/run-eval.py --judge
 
 # Keep the ported title rules in sync with sloptimizer's headline fixtures
 test-headline-sync:
@@ -163,41 +164,45 @@ test-innsigle:
 
 # Validate evaluation checks without calling a model
 test-eval-checks:
-    python3 tests/test_eval_checks.py
+    uv run --locked python tests/test_eval_checks.py
 
 # Validate source boundary policy, artifact evidence and adopting-project negative controls.
 test-modularity:
-    python3 tests/test_modularity.py
+    uv run --locked python tests/test_modularity.py
 
 # Exercise OTel concern propagation and the published bounded log query.
 test-agent-diagnostics:
-    python3 tests/test_agent_diagnostics.py
+    uv run --locked python tests/test_agent_diagnostics.py
 
 # Exercise formal concern propagation and the packaged finite lease model.
 test-formal-methods:
-    python3 tests/test_formal_methods.py
+    uv run --locked python tests/test_formal_methods.py
 
 # Plan execution and tracker opt-in contract regressions
 test-plan-execution:
-    python3 tests/test_plan_execution.py
+    uv run --locked python tests/test_plan_execution.py
 
 # UX coverage integrity and concern composition; runtime UX is verified in consumers.
 test-ux-governance:
-    python3 tests/test_ux_governance.py
+    uv run --locked python tests/test_ux_governance.py
 
 # Requirement-linked verification, conditional supplements and naming contracts.
 test-verification-contract:
-    python3 tests/test_verification_contract.py
+    uv run --locked python tests/test_verification_contract.py
 
 # Copy the plugin package into a DocumentDrivenDX/plugins checkout (commits and pushes nothing)
 publish-plugin checkout:
     bash scripts/build-plugin-package.sh
-    python3 scripts/publish-plugin.py {{quote(absolute_path(checkout))}}
+    uv run --locked python scripts/publish-plugin.py {{quote(absolute_path(checkout))}}
 
 # Publishing into the organization marketplace
 test-publish-plugin:
-    python3 tests/test_publish_plugin.py
+    uv run --locked python tests/test_publish_plugin.py
+
+# Python runs through uv, and no step requires running code
+test-python-policy:
+    uv run --locked python tests/test_python_policy.py
 
 # Release versions and publication ordering regression checks
 test-release-version:
-    python3 tests/test_release_version.py
+    uv run --locked python tests/test_release_version.py

@@ -67,18 +67,8 @@ if [[ ! -f "$DBAUTH_COOKIE_PATH" ]]; then
 fi
 
 # Check dependencies
-if ! command -v python3 &> /dev/null; then
-  log_error "python3 not found in PATH"
-  exit 1
-fi
-
-if ! python3 -c "import playwright" 2>/dev/null; then
-  log_error "Playwright not installed (run: pip install playwright && playwright install chromium)"
-  exit 1
-fi
-
-if ! python3 -c "import playwright" 2>/dev/null; then
-  log_error "Playwright install incomplete; run: playwright install chromium"
+if ! command -v uv &> /dev/null; then
+  log_error "uv not found in PATH; it supplies Python and the driver's dependencies"
   exit 1
 fi
 
@@ -141,7 +131,7 @@ for scenario in "${SCENARIOS[@]}"; do
     log_info "  (negative control mode)"
   fi
 
-  if python3 "$DRIVER_SCRIPT" "${DRIVER_ARGS[@]}" 2>&1 | tee -a /tmp/genie-test-$scenario.log; then
+  if uv run --script "$DRIVER_SCRIPT" "${DRIVER_ARGS[@]}" 2>&1 | tee -a /tmp/genie-test-$scenario.log; then
     log_info "  ✓ Scenario passed: $scenario"
     PASSED_SCENARIOS+=("$scenario")
   else

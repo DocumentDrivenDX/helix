@@ -28,8 +28,8 @@ Single source of truth: edit under `workflows/`, regenerate graph.yml
 between generated references and `workflows/` is a validation failure.
 
 Usage:
-    python3 scripts/sync_references.py [OUTPUT_DIR]
-    python3 scripts/sync_references.py --subset documentor [--check] [OUTPUT_DIR]
+    uv run --locked python scripts/sync_references.py [OUTPUT_DIR]
+    uv run --locked python scripts/sync_references.py --subset documentor [--check] [OUTPUT_DIR]
 
 OUTPUT_DIR defaults to dist/plugin-package/helix/skills/helix/references.
 validate-skills.sh passes a temp dir and diffs the generated package floor

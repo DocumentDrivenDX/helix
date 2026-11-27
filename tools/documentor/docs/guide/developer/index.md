@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=codex reviewed=2026-10-29/agent-sonnet/598c244910c70b63 -->
+<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=codex reviewed=2026-11-27/claude-independent-reader/598c244910c70b63 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
@@ -11,7 +11,7 @@
 <!-- helix:source src/documentor/theme.py sha256:17adf6a5c35f2e4d -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
-<!-- helix:source justfile sha256:33d64f77836eb9e1 -->
+<!-- helix:source justfile sha256:70068f1bcd44b7d9 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 <!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->

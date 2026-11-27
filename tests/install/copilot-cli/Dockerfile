@@ -9,11 +9,14 @@
 
 FROM ubuntu:24.04
 
+# Python in these scenarios runs through uv.
+COPY --from=ghcr.io/astral-sh/uv:0.12.7 /uv /uvx /usr/local/bin/
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install gh CLI per https://github.com/cli/cli/blob/trunk/docs/install_linux.md
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates curl git python3 python3-yaml gnupg \
+        ca-certificates curl git python3 gnupg \
     && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
         | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \

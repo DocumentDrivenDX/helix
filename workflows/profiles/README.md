@@ -23,4 +23,4 @@ Profile file shape (`workflows/profiles/<id>.yml`):
 
 The software-delivery graph is `workflows/graph.yml`. Other profiles' graphs are
 generated to `workflows/profiles/<id>.graph.yml` by
-`python3 scripts/generate_graph.py --profile <id>`.
+`uv run --locked python scripts/generate_graph.py --profile <id>`.

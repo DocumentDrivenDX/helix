@@ -38,7 +38,7 @@ print(f"Here is the page.\n\n{gap}<!-- helix:source src/tool/cli.py -->\n# {titl
 PY
 export FAKE_LOG="$tmpdir/calls.log"
 : >"$FAKE_LOG"
-agent="python3 $tmpdir/fake.py {model}"
+agent="uv run --no-project python $tmpdir/fake.py {model}"
 
 project="$tmpdir/project"
 mkdir -p "$project/src/tool" "$project/docs/helix/01-frame"

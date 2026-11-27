@@ -47,8 +47,8 @@ case "$SKILL_ROOT" in
 esac
 
 # Prefer non-legacy sources: reject known DDx legacy skill names when inspecting
-if command -v python3 >/dev/null 2>&1; then
-  python3 - <<'PY' || exit 1
+if command -v uv >/dev/null 2>&1; then
+  uv run --quiet --no-project python - <<'PY' || exit 1
 import json, subprocess, sys
 try:
     raw = subprocess.check_output(["grok", "inspect", "--json"], text=True)

@@ -65,7 +65,7 @@ printf '# Using the review tool\n\nThis is a very long hand-written sentence tha
 printf '# Start here\n\nOpen the tool.\n' >"$p/docs/start.md"
 git -C "$p" add -A   # existing pages are found among the files git tracks
 printf '  existing:\n    user:\n      - "docs/howto/*.md"\n  skip: [user/about]\n' >>"$p/.helix.yml"
-python3 - "$p/.helix.yml" <<'PY'
+uv run --no-project python - "$p/.helix.yml" <<'PY'
 import sys, yaml
 path = sys.argv[1]; data = yaml.safe_load(open(path))
 data["publish"]["existing"] = {"user": ["docs/howto/*.md"]}

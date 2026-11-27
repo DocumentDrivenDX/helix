@@ -86,3 +86,6 @@ website/config/_default/concourse.yaml
 
 .tools/concourse
 website/node_modules
+
+# uv environments
+.venv/

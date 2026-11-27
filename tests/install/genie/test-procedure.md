@@ -37,9 +37,9 @@ Test the upload pipeline against your own user-scoped path before
 targeting the workspace-wide path:
 
 ```bash
-python tests/install/genie/install.py \
+uv run --script tests/install/genie/install.py \
     --target /Users/$(whoami)/.assistant/skills/helix-test
-python tests/install/genie/verify.py \
+uv run --script tests/install/genie/verify.py \
     --target /Users/$(whoami)/.assistant/skills/helix-test
 ```
 
@@ -54,9 +54,9 @@ databricks workspace delete --recursive /Users/$(whoami)/.assistant/skills/helix
 ## Step 3 — install to workspace path
 
 ```bash
-python tests/install/genie/install.py
+uv run --script tests/install/genie/install.py
 # default target: /Workspace/.assistant/skills/helix
-python tests/install/genie/verify.py
+uv run --script tests/install/genie/verify.py
 ```
 
 Both exit 0 on success.

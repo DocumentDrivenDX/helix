@@ -1,12 +1,12 @@
-<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=agent-opus reviewed=2026-10-20/agent-sonnet/123dad4f006487cd -->
+<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=agent-opus reviewed=2026-11-27/claude-independent-reader/0e4e28c71b37b5e3 -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#mission-statement sha256:8905eb9dd1ca94ff -->
 <!-- helix:source docs/helix/02-design/architecture.md#level-1-system-context sha256:20eaaf2abca95251 -->
 <!-- helix:source docs/helix/02-design/architecture.md#level-2-container-diagram sha256:4d37f71ee8b0bb90 -->
 <!-- helix:source docs/helix/02-design/architecture.md#scripts-runtime-behavior-and-specifications sha256:536d2d6c7ff70cf8 -->
 <!-- helix:source docs/guide/architecture-views/architecture.md#context sha256:51eb579a579c67b8 -->
 <!-- helix:source docs/install/README.md#claude-code sha256:7814218be9564b78 -->
-<!-- helix:source justfile sha256:d3e5861049a16f1f -->
-<!-- helix:source tools/documentor/README.md sha256:8aa48696dc5b55b3 -->
+<!-- helix:source justfile sha256:3266f6dbdcb7f37b -->
+<!-- helix:source tools/documentor/README.md sha256:74299aa101dac8da -->
 # Overview
 
 ## What it is
@@ -19,7 +19,7 @@ A team never runs a HELIX command. They ask their agent runtime, and the runtime
 
 ## The parts
 
-The repository has nine parts, and the table shows which one a change belongs in. The first five are the portable content that every runtime receives. The other four support, package, or publish that content.
+The repository has nine parts, and the table shows which one a change belongs in. The first five are HELIX's portable source content. A source checkout has all of it; the generated plugin package and Genie bundle carry only part of the schema and methodology files (`artifact-schema.md` is not included). The other four support, package, or publish that content.
 
 | Part | Path | Change it when |
 |------|------|----------------|
@@ -37,7 +37,7 @@ Three boundaries decide most placements:
 
 - The skill body contains no runtime-specific commands. Runtime detail goes under `docs/install/`: `docs/install/ddx.md`, `docs/install/databricks-genie.md`, and the Claude Code section of `docs/install/README.md`.
 - The skill reads the catalog when a mode needs a template or rule; it does not bundle catalog content. A new artifact type is a catalog change, not a skill change.
-- Repository scripts are helpers for maintaining and packaging content. They do not define methodology behaviour, so a behaviour change belongs in `workflows/` or the skill.
+- Repository scripts are helpers for maintaining and packaging content. They do not define methodology behaviour, so a behaviour change belongs in `workflows/` or the skill. Scripts beside the skill are optional, and each has a by-hand route in `workflows/references/without-scripts.md`.
 
 The `.helix.yml` marker at the repository root declares the active flows and the root each flow may write under.
 
@@ -94,7 +94,7 @@ The source in `workflows/` and `skills/helix/` is never forked across packages. 
 
 Read [Architecture](architecture.md) for the system and deployment views, then the [Developer guide](developer-guide.md) for setup and day-to-day tasks.
 
-Before you change a part, run its checks. The `justfile` at the root wraps them:
+Before you change a part, run its checks. The `justfile` at the root wraps them, and all Python in them runs through uv:
 
 ```sh
 just test                     # the main suite, including test-skills

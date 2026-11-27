@@ -5,9 +5,9 @@ illustration inspired by worker lease contracts, not DDx implementation evidence
 Run from the repository root with Python 3.9 or later; no packages are required:
 
 ```bash
-python3 workflows/references/formal-methods/lease_model.py
-python3 workflows/references/formal-methods/lease_model.py --variant unfenced
-python3 workflows/references/formal-methods/lease_model.py --variant lock-held
+uv run --script workflows/references/formal-methods/lease_model.py
+uv run --script workflows/references/formal-methods/lease_model.py --variant unfenced
+uv run --script workflows/references/formal-methods/lease_model.py --variant lock-held
 ```
 
 The safe command must exit 0 with `PASS_BOUNDED`, all three scenario witnesses,

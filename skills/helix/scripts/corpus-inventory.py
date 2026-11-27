@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pyyaml>=6"]
+# ///
 """corpus-inventory — what a corpus contains, before anyone decides what to say.
 
 Scans a declared scope of Markdown files and prints an inventory the present
@@ -125,7 +129,7 @@ def structure(catalog: Path) -> dict:
         import yaml  # optional, but its absence is reported, never silent: the structural pass is a coverage input
     except ImportError:
         print("corpus-inventory: PyYAML is not installed; the structure pass (catalog layers, gates, concerns) was skipped. "
-              "Install it (pip install pyyaml) or read graph.yml, the GATE files, and the concerns index by hand.", file=sys.stderr)
+              "Run this script with `uv run --script`, or read graph.yml, the GATE files, and the concerns index by hand.", file=sys.stderr)
         out["skipped"] = "PyYAML missing: structure pass not run"
         return out
     g = yaml.safe_load(graph.read_text(encoding="utf-8")) or {}

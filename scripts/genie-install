@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["databricks-sdk>=0.30", "pyyaml>=6"]
+# ///
 """HELIX installer for Databricks Genie Code.
 
 Downloads the HELIX skill bundle from GitHub and uploads it to a
@@ -27,11 +31,10 @@ Auth: the Databricks SDK auto-detects credentials in this order:
 You do NOT need the Databricks CLI installed. The script speaks
 directly to the Databricks REST API via the SDK.
 
-Runtime: plain `python3` (>= 3.8). No `uv` required. Installs the
-`databricks-sdk` and `PyYAML` packages on first run if they aren't
-already present — works inside a Databricks notebook cell, where
-both pip and Databricks credentials are pre-configured, or any dev
-environment with pip on PATH.
+Runtime: on a dev box or CI, `uv run --script genie-install`; the header
+above declares the dependencies. In a Databricks notebook the installer runs
+in the notebook kernel, which uv does not manage, so the notebook provides
+them (docs/install/databricks-genie.md). This script installs nothing.
 
 Exit codes:
     0  install + verify succeeded
@@ -57,56 +60,24 @@ _REQS = [
 ]
 
 
-def _ensure_deps() -> None:
-    missing_pkgs: list[str] = []
+def _require_deps() -> None:
+    missing = []
     for mod, pkg in _REQS:
         try:
             importlib.import_module(mod)
         except ImportError:
-            missing_pkgs.append(pkg)
-    if not missing_pkgs:
-        return
-
-    print(
-        f"installing missing dependencies via pip: {' '.join(missing_pkgs)}",
-        file=sys.stderr,
-    )
-    # Try several pip invocations in order of preference. Stop on first success.
-    attempts = [
-        [sys.executable, "-m", "pip", "install", "--quiet", *missing_pkgs],
-        [sys.executable, "-m", "pip", "install", "--quiet", "--user", *missing_pkgs],
-        # PEP 668: externally-managed Pythons (some Linux distros) require this.
-        [sys.executable, "-m", "pip", "install", "--quiet", "--break-system-packages", *missing_pkgs],
-    ]
-    for cmd in attempts:
-        try:
-            subprocess.check_call(
-                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            )
-            importlib.invalidate_caches()
-            break
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            continue
-    else:
+            missing.append(pkg)
+    if missing:
         print(
-            "\nerror: could not pip-install the required dependencies.\n"
-            f"Install them manually then re-run:\n"
-            f"    pip install {' '.join(missing_pkgs)}\n",
+            f"error: missing {', '.join(missing)}. This script installs nothing.\n"
+            "On a dev box or CI, run it with uv, which supplies them: uv run --script genie-install\n"
+            "In a Databricks notebook, follow docs/install/databricks-genie.md.",
             file=sys.stderr,
         )
         sys.exit(2)
 
-    # Verify the imports work now.
-    for mod, pkg in _REQS:
-        try:
-            importlib.import_module(mod)
-        except ImportError as exc:
-            print(f"error: {pkg} installed but cannot import {mod}: {exc}",
-                  file=sys.stderr)
-            sys.exit(2)
 
-
-_ensure_deps()
+_require_deps()
 
 
 # --- now safe to import everything --------------------------------------

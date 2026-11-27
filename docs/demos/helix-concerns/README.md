@@ -17,14 +17,14 @@ should report all three.
 ## Rebuild the cast
 
 ```
-python3 scripts/demos/render_session.py docs/demos/helix-concerns/session.jsonl
+uv run --locked python scripts/demos/render_session.py docs/demos/helix-concerns/session.jsonl
 bash tests/validate-demos.sh
 ```
 
 ## Re-capture from a live agent
 
 ```
-python3 scripts/demos/capture_session.py helix-concerns \
+uv run --locked python scripts/demos/capture_session.py helix-concerns \
     --prompt "Run /helix align against the typescript-bun concern. Report every drift signal you find and propose a remediation plan." \
     --fixture docs/demos/helix-concerns/fixture/
 ```

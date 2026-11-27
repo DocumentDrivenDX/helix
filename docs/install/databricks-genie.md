@@ -9,6 +9,11 @@ this page holds only the deploy procedure.
 
 ### From inside a Databricks notebook (recommended, no setup)
 
+This is the one place HELIX asks for pip. The installer runs in the notebook's
+own kernel, to use the notebook's credentials, and uv does not manage that
+kernel. Everywhere else, run HELIX's Python with uv. The installer itself
+installs nothing.
+
 Paste this into a Python notebook cell. The kernel has implicit
 workspace credentials; no PAT, env vars, or CLI required.
 
@@ -239,15 +244,14 @@ bash tests/workflows/genie/run-scenarios.sh
 
 ## Manual install (no installer)
 
-If you cannot run the `genie-install` shebang (for example no `uv` on
-the machine), the underlying steps are:
+To run the steps yourself from a checkout (they need `uv`):
 
 ```bash
 git clone https://github.com/DocumentDrivenDX/helix /tmp/helix
 cd /tmp/helix
 bash scripts/build-genie-bundle.sh                  # → dist/genie-bundle/helix/
-python scripts/install-genie.py --target /Users/<you>/.assistant/skills/helix
-python scripts/verify-genie.py --target /Users/<you>/.assistant/skills/helix
+uv run --script scripts/install-genie.py --target /Users/<you>/.assistant/skills/helix
+uv run --script scripts/verify-genie.py --target /Users/<you>/.assistant/skills/helix
 ```
 
 These are the steps `genie-install` automates. Same result.

@@ -413,7 +413,7 @@ silently. Releases targeting older commits need a deliberately prepared release
 branch. Already published valid releases are never automatically retagged.
 
 For a release PR prepared locally, run
-`python3 scripts/release-version.py vX.Y.Z --write`, then open a PR titled
+`uv run --locked python scripts/release-version.py vX.Y.Z --write`, then open a PR titled
 `chore(release): vX.Y.Z`. The same merge workflow tags and publishes it.
 Manual version-guard runs check the requested tag rather than `main`.
 

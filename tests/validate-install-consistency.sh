@@ -16,6 +16,8 @@
 
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 REPO_ROOT="${1:-.}"
 
 if [[ ! -d "$REPO_ROOT" ]]; then
@@ -55,7 +57,7 @@ if [[ ! -f "$GENIE_INSTALL" ]]; then
 fi
 
 # Extract and compare manifest repos with python
-python3 - "$PLUGIN_JSON" "$CODEX_PLUGIN_JSON" "$MARKETPLACE_JSON" <<'PY'
+uvpy - "$PLUGIN_JSON" "$CODEX_PLUGIN_JSON" "$MARKETPLACE_JSON" <<'PY'
 import sys
 import json
 import re
@@ -118,7 +120,7 @@ if marketplace_version and marketplace_version != plugin.get("version"):
 print(f"ok: plugin.json and marketplace.json repos match: {plugin_path_norm}")
 PY
 
-MARKER_REPO=$(python3 - "$MARKETPLACE_JSON" <<'PY'
+MARKER_REPO=$(uvpy - "$MARKETPLACE_JSON" <<'PY'
 import sys
 import json
 import re
@@ -237,7 +239,7 @@ fi
 echo "ok: copilot-instructions.md carries no mode contract text ($COPILOT_LINES lines)"
 
 # documentor is released with HELIX: its version is the plugin's.
-PLUGIN_VERSION=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$PLUGIN_JSON")
+PLUGIN_VERSION=$(uvpy -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$PLUGIN_JSON")
 DOCUMENTOR_VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' "$REPO_ROOT/tools/documentor/pyproject.toml")
 DOCUMENTOR_INIT_VERSION=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' "$REPO_ROOT/tools/documentor/src/documentor/__init__.py")
 if [[ "$DOCUMENTOR_VERSION" != "$PLUGIN_VERSION" || "$DOCUMENTOR_INIT_VERSION" != "$PLUGIN_VERSION" ]]; then

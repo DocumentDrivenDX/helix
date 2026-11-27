@@ -26,10 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Python (Genie scenario)
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
 
       - name: Run per-runtime install scenarios
         # Docker is preinstalled on ubuntu runners. run-all.sh builds each

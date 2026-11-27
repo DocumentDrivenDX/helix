@@ -1,0 +1,13 @@
+# The environment for the repository's own scripts and tests. Nothing here is published.
+#
+# Python that ships to users declares its own dependencies instead: each script in
+# skills/helix/scripts/ carries inline metadata and a lock file, and tools/documentor/ is its own
+# project. tests/test_python_policy.py holds the rules.
+[project]
+name = "helix-repo"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6"]
+
+[tool.uv]
+package = false

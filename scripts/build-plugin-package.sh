@@ -16,6 +16,8 @@
 
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/lib/uvpy.sh"
+
 OUT_PARENT="dist/plugin-package"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -60,7 +62,7 @@ for path in "${required_paths[@]}"; do
   fi
 done
 
-python3 - "$SRC_SKILL" <<'PY'
+uvpy - "$SRC_SKILL" <<'PY'
 import re
 import sys
 
@@ -91,9 +93,9 @@ cp -f hooks/hooks.json "$OUT_DIR/hooks/hooks.json"
 cp -f "$SRC_SKILL" "$OUT_DIR/skills/helix/SKILL.md"
 cp -Rf skills/helix/scripts "$OUT_DIR/skills/helix/scripts"
 
-python3 scripts/sync_references.py "$OUT_DIR/skills/helix/references" >/dev/null
+uvpy scripts/sync_references.py "$OUT_DIR/skills/helix/references" >/dev/null
 
-python3 - "$OUT_DIR/PACKAGE-SOURCE.json" <<'PY'
+uvpy - "$OUT_DIR/PACKAGE-SOURCE.json" <<'PY'
 import json
 import subprocess
 import sys

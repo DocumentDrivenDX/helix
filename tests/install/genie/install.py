@@ -1,11 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = []
+# ///
 """Genie install scenario wrapper.
 
 Builds the bundle (if not already built) and delegates to
 `scripts/install-genie.py`. Inherits all env requirements from that script.
 
 Usage:
-    python tests/install/genie/install.py [--target WORKSPACE_PATH]
+    uv run --script tests/install/genie/install.py [--target WORKSPACE_PATH]
 """
 from __future__ import annotations
 

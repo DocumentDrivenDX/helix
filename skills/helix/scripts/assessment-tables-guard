@@ -21,4 +21,8 @@ probe=$(mktemp "$(dirname "$doc")/.helix-guard.XXXXXX") || exit 2
 trap 'rm -f "$probe"' EXIT
 trap 'exit 2' HUP INT TERM
 cp "$1" "$probe" || exit 2
-python3 "$(dirname "$0")/assessment-tables.py" "$probe" >&2
+if ! command -v uv >/dev/null 2>&1; then
+  echo "assessment-tables-guard: uv is required to run the table check" >&2
+  exit 2
+fi
+uv run --quiet --script "$(dirname "$0")/assessment-tables.py" "$probe" >&2

@@ -64,7 +64,7 @@ class ReleaseVersionTests(unittest.TestCase):
 
     def test_publisher_validates_before_build_and_upload(self):
         workflow = (ROOT / '.github/workflows/release-genie-bundle.yml').read_text()
-        check = workflow.index('run: python3 scripts/release-version.py')
+        check = workflow.index('run: uv run --locked python scripts/release-version.py')
         self.assertLess(check, workflow.index('run: bash scripts/build-genie-bundle.sh'))
         self.assertLess(check, workflow.index('uses: softprops/action-gh-release'))
         self.assertNotIn('continue-on-error:', workflow)
@@ -82,7 +82,7 @@ class ReleaseVersionTests(unittest.TestCase):
         workflow = (ROOT / '.github/workflows/release-ui.yml').read_text()
         self.assertIn('types: [published]', workflow)
         self.assertLess(workflow.index('--draft=true'), workflow.index('gh pr create'))
-        self.assertIn('python3 scripts/release-version.py "$TAG" --write', workflow)
+        self.assertIn('uv run --locked python scripts/release-version.py "$TAG" --write', workflow)
         self.assertIn('git rev-parse origin/main', workflow)
         self.assertIn('gh workflow run test.yml', workflow)
 

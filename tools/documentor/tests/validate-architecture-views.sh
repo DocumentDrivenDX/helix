@@ -48,7 +48,7 @@ grep -q "no longer contains 'return 1'" <<<"$out" || { echo "FAIL: expected the 
 sed -i.bak 's/return 2/return 1/' svc/app.py
 
 # The page views: a stack, a cast, a deployment drawn as SVG, and a journey that walks relations.
-python3 - svc/docs/helix/02-design/architecture-model.toml <<'PY'
+uv run --no-project python - svc/docs/helix/02-design/architecture-model.toml <<'PY'
 import re, sys
 path = sys.argv[1]
 text = open(path).read()

@@ -4,10 +4,12 @@
 # `profile:` keys resolve (absent = software-delivery; unknown = malformed).
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
-python3 - "$repo_root" <<'PYEOF' || fail "profile validation failed"
+uvpy - "$repo_root" <<'PYEOF' || fail "profile validation failed"
 import sys, subprocess, filecmp, shutil, os, tempfile
 from pathlib import Path
 import yaml
@@ -81,15 +83,15 @@ brief() {
 validator="$repo_root/skills/helix/scripts/validate-instance.py"
 brief > "$tmp/knowledge/incomplete.md"
 brief > "$tmp/docs/helix/incomplete.md"
-python3 "$validator" "$tmp/knowledge/incomplete.md" --catalog "$repo_root/workflows" >/dev/null || fail "incomplete content should pass at the default tier in an atlas flow"
-if python3 "$validator" "$tmp/knowledge/incomplete.md" --catalog "$repo_root/workflows" --tier publish >/dev/null; then fail "incomplete content should fail at the publish tier"; fi
-if python3 "$validator" "$tmp/docs/helix/incomplete.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete content should still fail in software-delivery"; fi
+uvpy "$validator" "$tmp/knowledge/incomplete.md" --catalog "$repo_root/workflows" >/dev/null || fail "incomplete content should pass at the default tier in an atlas flow"
+if uvpy "$validator" "$tmp/knowledge/incomplete.md" --catalog "$repo_root/workflows" --tier publish >/dev/null; then fail "incomplete content should fail at the publish tier"; fi
+if uvpy "$validator" "$tmp/docs/helix/incomplete.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete content should still fail in software-delivery"; fi
 
 # Scope variants: a reusable component-profile is judged by its own section list.
-python3 "$validator" "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" --catalog "$repo_root/workflows" >/dev/null \
+uvpy "$validator" "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" --catalog "$repo_root/workflows" >/dev/null \
   || fail "reusable component-profile example should validate"
 sed 's/^  scope: reusable/  scope: contextual/' "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" > "$tmp/as-contextual.md"
-if python3 "$validator" "$tmp/as-contextual.md" --catalog "$repo_root/workflows" >/dev/null; then fail "reusable content labelled contextual should fail"; fi
+if uvpy "$validator" "$tmp/as-contextual.md" --catalog "$repo_root/workflows" >/dev/null; then fail "reusable content labelled contextual should fail"; fi
 # A reusable tech-spike (a spike published as knowledge) is judged by its own section list: test
 # setup, views affected and reproduction required, no recommendation. Its `answers` link carries
 # the number of the open question it answers, and the technology-atlas profile accepts the kind.
@@ -97,14 +99,14 @@ spike="$repo_root/tests/fixtures/validate-instance/reusable-spike.md"
 mkdir -p "$tmp/knowledge/spikes"
 cp "$spike" "$tmp/knowledge/spikes/TS-001-examplestore-restore.md"
 for at in "$spike" "$tmp/knowledge/spikes/TS-001-examplestore-restore.md"; do
-  python3 "$validator" "$at" --catalog "$repo_root/workflows" --tier publish >"$tmp/spike.out" 2>&1 || fail "the reusable spike fixture should validate at the publish tier:
+  uvpy "$validator" "$at" --catalog "$repo_root/workflows" --tier publish >"$tmp/spike.out" 2>&1 || fail "the reusable spike fixture should validate at the publish tier:
 $(cat "$tmp/spike.out")"
   grep -q "WARNING\|BLOCKING" "$tmp/spike.out" && fail "the reusable spike fixture should have no findings:
 $(cat "$tmp/spike.out")"
 done
 spike_case() {  # sed expression, expected finding regex
   sed "$1" "$spike" >"$tmp/spike-case.md"
-  if python3 "$validator" "$tmp/spike-case.md" --catalog "$repo_root/workflows" >"$tmp/spike.out" 2>&1; then fail "spike case /$1/ should block"; fi
+  if uvpy "$validator" "$tmp/spike-case.md" --catalog "$repo_root/workflows" >"$tmp/spike.out" 2>&1; then fail "spike case /$1/ should block"; fi
   grep -Eq "$2" "$tmp/spike.out" || fail "spike case /$1/ should report /$2/:
 $(cat "$tmp/spike.out")"
 }
@@ -143,19 +145,19 @@ ddx:
 # Publication
 MD
 git -C "$repo" add . && git -C "$repo" commit -q -m pub
-pin_findings() { python3 "$validator" "$repo/publications/pub.md" --catalog "$repo_root/workflows" --tier publish --format json | python3 -c 'import json,sys; print(",".join(sorted(f["check"] for f in json.load(sys.stdin)["findings"] if f["check"].startswith("pin_links"))))' || true; }
+pin_findings() { uvpy "$validator" "$repo/publications/pub.md" --catalog "$repo_root/workflows" --tier publish --format json | uvpy -c 'import json,sys; print(",".join(sorted(f["check"] for f in json.load(sys.stdin)["findings"] if f["check"].startswith("pin_links"))))' || true; }
 [ "$(pin_findings)" = "pin_links.0" ] || fail "a deliverable with an unpinned link at the publish tier should report pin_links.0, got '$(pin_findings)'"
-python3 "$pinner" pin "$repo/publications/pub.md" >/dev/null || fail "pin should succeed"
+uvpy "$pinner" pin "$repo/publications/pub.md" >/dev/null || fail "pin should succeed"
 grep -q 'rev: git:' "$repo/publications/pub.md" || fail "pin should write a git rev"
 [ -z "$(pin_findings)" ] || fail "pinned deliverable should have no pin_links findings"
 git -C "$repo" commit -qam pinned
 printf 'version two, edited after approval\n' >> "$repo/knowledge/pg.md"
 git -C "$repo" commit -qam "assessment evolves"
-python3 "$pinner" check "$repo/publications/pub.md" | grep -q "source has changed since the pin" || fail "check should report source drift"
-python3 "$pinner" materialize "$repo/publications/pub.md" "$tmp/materialized" >/dev/null || fail "materialize should succeed"
+uvpy "$pinner" check "$repo/publications/pub.md" | grep -q "source has changed since the pin" || fail "check should report source drift"
+uvpy "$pinner" materialize "$repo/publications/pub.md" "$tmp/materialized" >/dev/null || fail "materialize should succeed"
 grep -q "version one" "$tmp/materialized/knowledge/pg.md" && ! grep -q "version two" "$tmp/materialized/knowledge/pg.md" \
   || fail "materialized source must be the pinned version, not the edited one"
-python3 "$pinner" pin "$repo/publications/pub.md" >/dev/null && git -C "$repo" diff --quiet -- publications/pub.md \
+uvpy "$pinner" pin "$repo/publications/pub.md" >/dev/null && git -C "$repo" diff --quiet -- publications/pub.md \
   || fail "re-pinning must not move an existing pin"
 echo "OK: pinned publications"
 
@@ -170,12 +172,12 @@ for r in atlas client; do git -C "$sc/$r" init -q; done
 git -C "$sc/atlas" add . && git -C "$sc/atlas" commit -q -m "briefs"
 rev="git:$(git -C "$sc/atlas" rev-parse HEAD)"
 for f in atlas/technology/nodejs.md atlas/technology/python.md client/decisions/DB-001-test-decision.md client/publications/DEL-001-test-publication.md; do
-  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "scenario fixture $f should validate at the default tier"
+  uvpy "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "scenario fixture $f should validate at the default tier"
 done
 # Approve: unpinned cross-graph links must block, pinned ones pass.
 for f in client/decisions/DB-001-test-decision.md client/publications/DEL-001-test-publication.md; do
-  if python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" --tier publish >/dev/null; then fail "$f with unpinned cross-graph links should fail at the publish tier"; fi
-  python3 - "$sc/$f" "$rev" <<'PY'
+  if uvpy "$validator" "$sc/$f" --catalog "$repo_root/workflows" --tier publish >/dev/null; then fail "$f with unpinned cross-graph links should fail at the publish tier"; fi
+  uvpy - "$sc/$f" "$rev" <<'PY'
 import re, sys
 p, rev = sys.argv[1], sys.argv[2]
 t = open(p).read()
@@ -184,13 +186,13 @@ t = re.sub(r"\{id: ([\w.-]+), graph: ([\w-]+), kind: evaluates\}", r"{id: \1, gr
 t = re.sub(r"(    - id: component-profile-[\w-]+\n      graph: [\w-]+\n      kind: informed_by\n)", r"\1      rev: " + rev + "\n", t)
 open(p, "w").write(t)
 PY
-  python3 "$pinner" check "$sc/$f" | grep -q "external" || fail "pin-sources should report cross-graph links as external"
+  uvpy "$pinner" check "$sc/$f" | grep -q "external" || fail "pin-sources should report cross-graph links as external"
 done
 git -C "$sc/client" add . && git -C "$sc/client" commit -q -m "pinned"
 # The local DB-001 link is pinned from client history; cross-graph pins came from the atlas.
-python3 "$pinner" pin "$sc/client/publications/DEL-001-test-publication.md" >/dev/null || fail "pin should succeed"
+uvpy "$pinner" pin "$sc/client/publications/DEL-001-test-publication.md" >/dev/null || fail "pin should succeed"
 for f in client/decisions/DB-001-test-decision.md client/publications/DEL-001-test-publication.md; do
-  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" --tier publish >/dev/null || fail "pinned $f should validate at the publish tier"
+  uvpy "$validator" "$sc/$f" --catalog "$repo_root/workflows" --tier publish >/dev/null || fail "pinned $f should validate at the publish tier"
 done
 # The atlas evolves; the approved publication still resolves its pinned sources.
 printf '\nA later edit to the briefs.\n' >> "$sc/atlas/technology/nodejs.md"
@@ -209,10 +211,10 @@ authdoc '    - {id: A-1, kind: contradicts}' > "$tmp/knowledge/contradicts.md"
 authdoc '    - {id: B-1, graph: other-atlas, kind: evaluates, authority: governing}' > "$tmp/knowledge/governing.md"
 authdoc '    - {id: B-1, graph: other-atlas, kind: evaluates, authority: advisory}' > "$tmp/knowledge/advisory.md"
 authdoc '    - {id: B-1, kind: evaluates, authority: governing}' > "$tmp/docs/helix/governing-in-flow.md"
-python3 "$validator" "$tmp/knowledge/contradicts.md" --catalog "$repo_root/workflows" --format json | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["summary"]["blocking"]==0 and any(f["check"].endswith("contradicts") and f["severity"]=="info" for f in d["findings"]) else 1)' \
+uvpy "$validator" "$tmp/knowledge/contradicts.md" --catalog "$repo_root/workflows" --format json | uvpy -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["summary"]["blocking"]==0 and any(f["check"].endswith("contradicts") and f["severity"]=="info" for f in d["findings"]) else 1)' \
   || fail "contradicts must be surfaced as info and never block"
-python3 "$validator" "$tmp/knowledge/advisory.md" --catalog "$repo_root/workflows" >/dev/null || fail "an advisory cross-graph link should validate"
-if python3 "$validator" "$tmp/knowledge/governing.md" --catalog "$repo_root/workflows" >/dev/null; then fail "a governing cross-graph link must fail under an advisory-only profile"; fi
-{ python3 "$validator" "$tmp/docs/helix/governing-in-flow.md" --catalog "$repo_root/workflows" --format json || true; } | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(1 if any(f["check"].startswith("links.") and f["severity"]=="blocking" for f in d["findings"]) else 0)' \
+uvpy "$validator" "$tmp/knowledge/advisory.md" --catalog "$repo_root/workflows" >/dev/null || fail "an advisory cross-graph link should validate"
+if uvpy "$validator" "$tmp/knowledge/governing.md" --catalog "$repo_root/workflows" >/dev/null; then fail "a governing cross-graph link must fail under an advisory-only profile"; fi
+{ uvpy "$validator" "$tmp/docs/helix/governing-in-flow.md" --catalog "$repo_root/workflows" --format json || true; } | uvpy -c 'import json,sys; d=json.load(sys.stdin); sys.exit(1 if any(f["check"].startswith("links.") and f["severity"]=="blocking" for f in d["findings"]) else 0)' \
   || fail "positional authority inside a software-delivery flow must be unchanged"
 echo "OK: authority and contradictions"

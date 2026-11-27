@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-11-02/codex-independent-reader/16bb89a633aac8e1 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-11-27/claude-independent-reader/9ef5f69e91e8b3c5 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/visuals.py sha256:1d4bb1fa77dff99e -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
@@ -14,11 +14,11 @@
 <!-- helix:source src/documentor/architecture/draft.py sha256:011428f478bbe9d4 -->
 <!-- helix:source src/documentor/architecture/estate.py sha256:00bdd63951c4abf6 -->
 <!-- helix:source src/documentor/architecture/tour.py sha256:80f840c2fe35c2c1 -->
-<!-- helix:source pyproject.toml sha256:839c29e5c94a5664 -->
-<!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/test.yml sha256:7ca950a8833cb294 -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
-<!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
+<!-- helix:source pyproject.toml sha256:0b5a4c6ffca5d95d -->
+<!-- helix:source justfile sha256:70068f1bcd44b7d9 -->
+<!-- helix:source ../../.github/workflows/test.yml sha256:ae3601a7067d768e -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:40fbab08748e28bb -->
+<!-- helix:source tests/validate-package.sh sha256:04d10a286b09eec7 -->
 <!-- helix:source docs/helix/01-frame/prd.md#requirements sha256:faab177063c3e4e8 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md sha256:f430157a0b1cbc34 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-002-an-estate-view-is-composed-from-repository-architecture-models.md sha256:b612bb9b14aab618 -->
@@ -158,13 +158,13 @@ The schema publisher preserves unrelated files and refuses unowned output collis
 
 The Pages template, `src/documentor/catalog/ci/github-pages.yml`, requires selecting a release with UMF support; preflight rejects the placeholder or a tool without schema publication.
 
-A new site also gets a Presentations section, one per view marked `present = true`, and a "How this guide was made" page. A presentation the host cannot render is left out of the site, and `site` says so.
+A new site gets a Presentations section, one per view marked `present = true`, and a "How this guide was made" page. `site` omits, and names, any presentation the host cannot render.
 
 </details>
 
-The renderers behind `deck`, `doc`, presentations, and `site --shots` need Node, LibreOffice, or Chrome. `documentor doctor` reports which of these the host has, and which theme `publish.theme` resolves to.
+Rendering `deck`, `doc`, presentations, and `site --shots` needs Node, LibreOffice, or Chrome. `documentor doctor` reports available tools and the resolved `publish.theme`. `deck qa` contact sheets need Pillow (`contact-sheet` extra) or `montage`.
 
-documentor's CI is HELIX's `documentor` workflow. It runs when documentor changes, or when a part of HELIX that documentor packages changes: the publish catalog, voice profiles, writing pass, deliverables, or prose audit. It works from `tools/documentor` with Python 3.12 and Hugo 0.160.0:
+documentor's CI is the `documentor` job in HELIX's `Test` workflow. It runs on pull requests touching documentor or what it packages, and on manual, weekly, and release runs. In `tools/documentor`, with Python 3.12 and Hugo 0.160.0, it runs:
 
 ```sh
 uv sync

@@ -27,13 +27,15 @@ jobs:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
           fetch-depth: 0
 
+      - uses: astral-sh/setup-uv@v6
+
       - name: Determine tag from PR title and manifests
         id: version
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          TAG=$(python3 -c 'import os,re; m=re.match(r"^chore\(release\): (v\d+\.\d+\.\d+)(?:$|\s)", os.environ["PR_TITLE"]); assert m, "expected chore(release): vX.Y.Z"; print(m[1])')
-          python3 scripts/release-version.py "$TAG"
+          TAG=$(uv run --locked python -c 'import os,re; m=re.match(r"^chore\(release\): (v\d+\.\d+\.\d+)(?:$|\s)", os.environ["PR_TITLE"]); assert m, "expected chore(release): vX.Y.Z"; print(m[1])')
+          uv run --locked python scripts/release-version.py "$TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Create tag or complete a draft UI release
@@ -52,7 +54,7 @@ jobs:
             OLD=$(git rev-parse "refs/tags/$TAG")
             git merge-base --is-ancestor "$TAG^{commit}" "$MERGE_SHA"
             git diff --name-only "$TAG^{commit}" "$MERGE_SHA" > /tmp/release-paths
-            python3 - <<'PYCODE'
+            uv run --locked python - <<'PYCODE'
           from pathlib import Path
           import re, subprocess, os
           allowed = {'.claude-plugin/plugin.json', '.codex-plugin/plugin.json',

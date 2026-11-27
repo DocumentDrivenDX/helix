@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+. "$(dirname "${BASH_SOURCE[0]}")/../scripts/lib/uvpy.sh"
+
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 validator="$repo_root/scripts/validate_deploy_artifact_graph.py"
 docs_validator="$repo_root/scripts/validate_deploy_contract_docs.py"
@@ -22,11 +24,11 @@ assert_contains() {
 }
 
 run_validator() {
-  python3 "$validator" "$@"
+  uvpy "$validator" "$@"
 }
 
 run_docs_validator() {
-  python3 "$docs_validator" "$@"
+  uvpy "$docs_validator" "$@"
 }
 
 tmpdir="$(mktemp -d)"
@@ -45,7 +47,7 @@ assert_contains "$docs_pass_output" "validated deploy contract docs" \
 later_dir="$tmpdir/later-edge"
 mkdir -p "$later_dir"
 cp -rf "$artifacts_dir"/. "$later_dir"/
-python3 - "$later_dir/monitoring-setup/meta.yml" <<'PYEOF'
+uvpy - "$later_dir/monitoring-setup/meta.yml" <<'PYEOF'
 from pathlib import Path
 import sys
 
@@ -74,7 +76,7 @@ assert_contains "$later_output" "requires later deploy artifact release-notes" \
 cycle_dir="$tmpdir/cycle"
 mkdir -p "$cycle_dir"
 cp -rf "$artifacts_dir"/. "$cycle_dir"/
-python3 - "$cycle_dir/monitoring-setup/meta.yml" <<'PYEOF'
+uvpy - "$cycle_dir/monitoring-setup/meta.yml" <<'PYEOF'
 from pathlib import Path
 import sys
 
@@ -93,7 +95,7 @@ path.write_text(text.rstrip() + injection, encoding="utf-8")
 PYEOF
 # Cycle requires runbook -> monitoring-setup too. runbook already informs monitoring;
 # we add the explicit reverse edge in runbook to complete the cycle.
-python3 - "$cycle_dir/runbook/meta.yml" <<'PYEOF'
+uvpy - "$cycle_dir/runbook/meta.yml" <<'PYEOF'
 from pathlib import Path
 import sys
 
@@ -124,7 +126,7 @@ mkdir -p "$docs_dir"
 cp -f "$repo_root/workflows/activities/05-deploy/README.md" "$docs_dir/README.md"
 cp -f "$repo_root/workflows/activities/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
 cp -f "$repo_root/docs/website/content/artifact-types/deploy/_index.md" "$docs_dir/artifacts.md"
-python3 - "$docs_dir/README.md" <<'PYEOF'
+uvpy - "$docs_dir/README.md" <<'PYEOF'
 from pathlib import Path
 import sys
 
@@ -161,7 +163,7 @@ mkdir -p "$docs_coexist_dir"
 cp -f "$repo_root/workflows/activities/05-deploy/README.md" "$docs_coexist_dir/README.md"
 cp -f "$repo_root/workflows/activities/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
 cp -f "$repo_root/docs/website/content/artifact-types/deploy/_index.md" "$docs_coexist_dir/artifacts.md"
-python3 - "$docs_coexist_dir/README.md" <<'PYEOF'
+uvpy - "$docs_coexist_dir/README.md" <<'PYEOF'
 from pathlib import Path
 import sys
 

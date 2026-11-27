@@ -386,7 +386,9 @@ package uses whatever metadata format its target requires.
   with read, write, and search alone; the scripts are optional host tooling,
   and each mode that names one states what happens when it is absent (the
   model performs the check by hand, or the mode stops after the script and
-  names a host that can render). Nothing moves into DDx.
+  names a host that can render). The by-hand routes are collected in
+  `workflows/references/without-scripts.md`. Wherever HELIX's Python does run,
+  uv manages it and its dependencies. Nothing moves into DDx.
 
 ## Success Criteria
 

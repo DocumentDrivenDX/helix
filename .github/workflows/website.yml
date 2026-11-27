@@ -152,7 +152,7 @@ jobs:
         run: bash tests/validate-innsigle.sh
 
       - name: Check internal links + images
-        run: python3 scripts/check-website-links.py
+        run: uv run --locked python scripts/check-website-links.py
 
       - name: End-to-end + accessibility (Playwright + axe)
         if: env.FULL == 'true'

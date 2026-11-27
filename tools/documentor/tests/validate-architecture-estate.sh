@@ -111,7 +111,7 @@ $rg estate write --config "$tmpdir/estate.toml" --dry-run >"$tmpdir/prompt" 2>&1
 grep -q "^- connection " "$tmpdir/prompt" || fail "the writer's brief should hold every connection from the models"
 grep -q "^- Open questions" "$tmpdir/prompt" || fail "the brief should name the sections"
 $rg estate write --config "$tmpdir/estate.toml" --out "$tmpdir/explained.md" \
-  --agent "python3 $tmpdir/agent.py {model} $tmpdir/calls" >"$tmpdir/out" 2>&1 || fail "estate write: $(cat "$tmpdir/out")"
+  --agent "uv run --no-project python $tmpdir/agent.py {model} $tmpdir/calls" >"$tmpdir/out" 2>&1 || fail "estate write: $(cat "$tmpdir/out")"
 grep -q "written=agent-opus reviewed=" "$tmpdir/explained.md" || fail "the page should name its writer and its evaluator"
 grep -q '^```mermaid' "$tmpdir/explained.md" || fail "the page keeps the landscape"
 grep -q "^## How they connect" "$tmpdir/explained.md" || fail "the page holds the agent's sections"
@@ -121,7 +121,7 @@ grep -q "^### Connections" "$tmpdir/explained.md" || fail "the generated tables 
 # After a person's edit, --review evaluates the page as it stands and records the pass.
 sed -i.bak 's/reviewed=[^;]*;/reviewed=-;/' "$tmpdir/explained.md"
 $rg estate write --config "$tmpdir/estate.toml" --out "$tmpdir/explained.md" --review \
-  --agent "python3 $tmpdir/agent.py {model} $tmpdir/calls" >"$tmpdir/out" 2>&1 || fail "estate write --review: $(cat "$tmpdir/out")"
+  --agent "uv run --no-project python $tmpdir/agent.py {model} $tmpdir/calls" >"$tmpdir/out" 2>&1 || fail "estate write --review: $(cat "$tmpdir/out")"
 grep -q "reviewed=[0-9-]*/agent-sonnet;" "$tmpdir/explained.md" || fail "--review should record the pass"
 
 # One-sided: beta no longer says alpha calls it.

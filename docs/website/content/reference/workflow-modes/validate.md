@@ -17,8 +17,8 @@ prompt, then edit resolvable findings in place.
 2. Load the artifact-type's `template.md`, `prompt.md`, `meta.yml`, and active
    voice profile from the resolved catalog path (see §Catalog Resolution and
    §Voice Resolution).
-3. Run the deterministic floor first: `scripts/validate-instance.py
-   <instance>` (beside this skill; `python3` and PyYAML) executes the type's
+3. Run the deterministic floor first: `uv run --script
+   scripts/validate-instance.py <instance>` (beside this skill) executes the type's
    `required_sections`, `pattern_checks`, `automated_checks`, placeholder
    scan, frontmatter checks, and, for a deliverable, the prose audit (`prose.*`,
    `workflows/references/writing-pass.md`) and prints findings with check ids. Treat its
@@ -27,7 +27,11 @@ prompt, then edit resolvable findings in place.
    safety constraint, or completion claim. A missing heading can identify
    missing content; it does not prove that content is unavailable elsewhere.
    Lifecycle labels, stale review stamps, and missing edges alone are not
-   findings. When the host cannot run scripts, read `meta.yml`.
+   findings. When the script cannot run (no shell, no uv, or it fails to
+   start), apply the same checks by hand as
+   `workflows/references/without-scripts.md` sets them out, from the type's
+   `meta.yml`. In the report, say the script did not run, which checks you did
+   by hand, and which you did not do.
 4. Check applicable requirements from `prompt.md`. Omit optional sections
    when they do not apply; do not add `N/A` text to satisfy a template.
    Check the instance's statements of status, behavior, location, and count

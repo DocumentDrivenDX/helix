@@ -15,6 +15,21 @@ This project uses the DDx tracker for its own work items. Issues live in
 of this file covers tracker conventions; HELIX content never names `ddx`
 commands (see `lefthook.yml` `check-workflow-paths`).
 
+## Python and scripts
+
+Two rules, checked by `tests/test_python_policy.py`:
+
+- **Python is always managed with uv.** Repository code runs in the root
+  `pyproject.toml` environment (`uv run --locked python ...`). A script that
+  ships to users declares its dependencies inline and commits its lock file
+  (`uv lock --script <file>`); run it with `uv run --script`. `tools/documentor/`
+  is its own uv project. No pip; the one exception is the Databricks notebook
+  kernel, which uv does not manage.
+- **Using HELIX never requires running code.** Each script beside the skill is an
+  optional tool with a by-hand route in
+  `workflows/references/without-scripts.md`. A change to a script's rules changes
+  that page too.
+
 ## Quick Reference
 
 Validation and build:
@@ -26,10 +41,10 @@ bash tests/validate-skills.sh
 bash tests/validate-context-digests.sh
 bash tests/validate-demos.sh
 
-python3 scripts/generate_graph.py      # Regenerate workflows/graph.yml from meta.yml
-python3 scripts/generate-reference.py  # Regenerate /artifact-types/, /concerns/, /reference/workflow-modes/
+uv run --locked python scripts/generate_graph.py      # Regenerate workflows/graph.yml from meta.yml
+uv run --script scripts/generate-reference.py  # Regenerate /artifact-types/, /concerns/, /reference/workflow-modes/
 uv run --project tools/documentor documentor record --root .   # Publish docs/helix/ into /artifacts/
-python3 scripts/publish-resources.py   # Publish docs/resources/ into /research/
+uv run --locked python scripts/publish-resources.py   # Publish docs/resources/ into /research/
 bash website/scripts/serve-local.sh    # Serve the microsite at http://eitri:1315/helix/
 ```
 
