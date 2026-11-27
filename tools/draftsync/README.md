@@ -22,7 +22,7 @@ Tests: `just test-draftsync`.
 - Deleting a table or a loose-list item can leave one extra blank line.
 - A data row whose cells are only dashes (`| - | - |`) reads as a table separator.
 - Only the changed-blocks read of the Claude Docs surface has a translator; a full export is not normalized.
-- The draft write-back (`doc-ops`) writes only plain-word changes. It reports and leaves to a person: anything in or next to formatting (bold, code, links), blocks with odd spacing, code, quotes and HTML, a new list, table or list item, a block inserted between list items or table rows, a list item deleted with nested items, and blocks that repeat identically.
+- The draft write-back (`doc-ops`) writes only plain-word changes. It reports and leaves to a person: anything in or next to formatting (bold, code, links), blocks with odd spacing, code, quotes and HTML, a new list, table or list item, a block inserted between list items or table rows, a list item deleted with nested items, and blocks that repeat identically. A new file block that the draft added too since the synced revision is not inserted again; if their text is only similar, it is reported for comparison. Because that block is not in the base, until `rebind` the write-back inserts it again if the file rewrites it heavily, and does not report the file deleting it.
 - `merge3` is quadratic in the length of a changed region; wrapped text is fast.
 - `find_base` reads one version per commit of the file (`git log --follow`); a base hundreds of commits back is slow. `rebind` shortens that.
 - The hook does not fire for edits made through a shell command.
