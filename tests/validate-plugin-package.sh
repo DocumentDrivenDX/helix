@@ -32,6 +32,7 @@ pkg_skill="$pkg_root/skills/helix"
 [[ -f "$pkg_root/hooks/hooks.json" ]] || fail "missing auto-loaded hooks/hooks.json"
 [[ -f "$pkg_skill/SKILL.md" ]] || fail "missing packaged SKILL.md"
 [[ -f "$pkg_skill/scripts/validate-instance.py" ]] || fail "missing packaged validate-instance.py"
+[[ -x "$pkg_skill/scripts/assessment-tables-guard" ]] || fail "missing executable table guard"
 [[ -f "$pkg_skill/references/stop-triggers.yml" ]] || fail "missing packaged stop triggers"
 for license in LICENSE LICENSE-MIT LICENSE-APACHE; do
   [[ -f "$pkg_root/$license" ]] || fail "missing package $license"

@@ -507,4 +507,24 @@ python3 "$validator" "$proj/knowledge/brief.md" --catalog "$repo_root/workflows"
   && grep -Eq "^WARNING +views .*Finance" "$tmpdir/case.out" || fail "a malformed Views section should be a warning at an atlas flow's default tier:
 $(cat "$tmpdir/case.out")"
 
+# The guard docsync runs on a shared draft's edits. docsync hands it a copy outside the project.
+guard="$repo_root/skills/helix/scripts/assessment-tables-guard"
+[ -x "$guard" ] || fail "the table guard should be executable"
+mkdir -p "$sb/copy"
+expect_guard() {  # expected status, copy, label; HELIX_GUARD_DOC is the caller's
+  local status=0
+  "$guard" "$2" >"$tmpdir/guard.out" 2>&1 || status=$?
+  [ "$status" = "$1" ] || fail "table guard ($3) should exit $1, not $status:
+$(cat "$tmpdir/guard.out")"
+}
+cp "$sb/TA-001.md" "$sb/copy/TA-001.md"
+HELIX_GUARD_DOC="$sb/TA-001.md" expect_guard 0 "$sb/copy/TA-001.md" "unchanged tables"
+sed 's/^| Script distribution |\(.*\)| none |$/| Script distribution | Changed in the draft | none |/' \
+  "$sb/TA-001.md" >"$sb/copy/TA-001.md"
+! cmp -s "$sb/TA-001.md" "$sb/copy/TA-001.md" || fail "the table guard fixture should change a generated table"
+HELIX_GUARD_DOC="$sb/TA-001.md" expect_guard 1 "$sb/copy/TA-001.md" "changed table"
+HELIX_GUARD_DOC="" expect_guard 2 "$sb/copy/TA-001.md" "no document named"
+HELIX_GUARD_DOC="$sb/case.md" expect_guard 2 "$sb/copy/TA-001.md" "another document named"
+[ -z "$(find "$sb" -name '.helix-guard.*')" ] || fail "the table guard should remove its probe"
+
 echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment, recommendation and weight blocks, keys, figure attributes, and reader views, and errors on unresolvable types"

@@ -52,16 +52,23 @@ half of present, and the by-hand form of `guide`. Item 4 is optional;
 and documentor use it. This is the binding form of PRD R-4 (runtime-neutral
 content).
 
-## The shared-edit tool (optional)
+## The shared-edit companion (optional)
 
-The `shared-edit` mode keeps a governed document and a shared draft of it (a Claude Doc, for example) in step. It has one optional host tool, draftsync, released with HELIX from `tools/draftsync/`. It needs [uv](https://docs.astral.sh/uv/) and nothing else:
+The `shared-edit` mode keeps a governed document and a shared draft of it (a Claude Doc) in step. The sync is done by [docsync](https://github.com/DocumentDrivenDX/docsync), a separate plugin in the DocumentDrivenDX marketplace. HELIX does not install it for you. In Claude Code:
 
 ```sh
-uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/draftsync"
-draftsync --help
+claude plugin marketplace add DocumentDrivenDX/plugins
+claude plugin install docsync@documentdrivendx
 ```
 
-Without it the mode stops and says so. Binding a file, the optional local-edit hook, and the sync cycle are in `workflows/modes/shared-edit.md`.
+In Codex:
+
+```sh
+codex plugin marketplace add DocumentDrivenDX/plugins
+codex plugin add docsync@documentdrivendx
+```
+
+docsync needs the Claude Docs tools and a git repository; installing it does not give a host those tools. Without it the mode stops and says so, and the rest of HELIX is unaffected. Releases through v0.25.0 shipped their own tool, draftsync; `workflows/modes/shared-edit.md` says how to move its bindings.
 
 ## The documentation tool (optional)
 
