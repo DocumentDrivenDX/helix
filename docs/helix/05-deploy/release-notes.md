@@ -12,53 +12,57 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ---
 
-# Release Notes — HELIX v0.25.0
+# Release Notes — HELIX v0.25.1
 
 ## Release Scope
 
-- Release identifier: `v0.25.0`
-- Release date: 2026-11-12
-- Previous release: `v0.24.0`
-- Scope: technology assessments can cover engineering practices.
+- Release identifier: `v0.25.1`
+- Release date: 2026-11-27
+- Previous release: `v0.25.0`
+- Scope: HELIX is published to the DocumentDrivenDX plugin marketplace, is licensed `MIT OR Apache-2.0`, and draftsync no longer inserts a landed block twice.
 - Release owner: HELIX maintainer, publishing through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| Technology atlas authors | Can document a practice in a technology assessment | HELIX plugin and skill bundles |
+| Claude Code users | Can install `helix@documentdrivendx` | DocumentDrivenDX plugin marketplace |
+| draftsync users | A write-back skips a block that git already took from the draft | draftsync uv tool |
 
 ## Highlights
 
-- Use `scope: practice` on a technology assessment to describe how a practice works, when to apply it, and what sources support the findings.
-- Practice assessments require Scope, Findings, and Sources. Product comparison sections are optional for this scope.
-- The catalog includes a practice assessment of continuous integration for web applications.
+- Each release now publishes the plugin to the DocumentDrivenDX marketplace. The `helix@helix` marketplace stays in service.
+- HELIX is licensed `MIT OR Apache-2.0`, and the plugin package ships the license files.
+- `draftsync doc-ops` no longer inserts a reviewer's added paragraph or table row a second time after it lands in git.
 
 ## Required Actions Summary
 
-- Use the new scope when assessing a practice on its own. Existing assessments require no migration.
+- None. Existing installs of `helix@helix` keep working.
 
 ## Changes and Fixes
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Technology assessment | Added a practice scope with its own validation rules, authoring guidance, and example | Technology atlas authors |
+| Distribution | The release workflow publishes `plugins/helix` to DocumentDrivenDX/plugins | Claude Code users |
+| License | `MIT OR Apache-2.0` | Anyone who uses or redistributes HELIX |
+| draftsync | The write-back pairs added git blocks with blocks the draft already holds, and reports close matches to compare by hand | draftsync users |
 
 ## Breaking Changes and Required Actions
 
-The existing technology comparison scope keeps its validation rules.
+No breaking changes.
 
 ## Migration or Rollback Guidance
 
-Pin `v0.24.0` to return to the previous assessment catalog.
+Pin `v0.25.0` to return to the previous release.
 
 ## Known Issues and Support
 
-Open a GitHub issue in the HELIX repository for support.
+- If git rewrites a landed block heavily, draftsync can still insert it again. If git deletes a landed block, the draft keeps it and nothing is reported.
+- Open a GitHub issue in the HELIX repository for support.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](deployment-checklist.md)
-- Pull request: #132
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.24.0...v0.25.0
+- Pull requests: #134, #135
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.25.0...v0.25.1
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
