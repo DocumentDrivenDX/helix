@@ -41,9 +41,11 @@ The release workflow (`.github/workflows/release-genie-bundle.yml`) publishes
 each release tag twice: as GitHub release assets, and as `plugins/helix` in the
 organization marketplace,
 [DocumentDrivenDX/plugins](https://github.com/DocumentDrivenDX/plugins). The
-marketplace push uses the `PLUGINS_DEPLOY_KEY` secret. The marketplace file
-there must list `helix` at `./plugins/helix`. Publishing refuses to change the
-content of a version already published or to replace it with an older one. This
+marketplace push uses the `documentdrivendx-publisher` GitHub App, through the
+`PLUGINS_APP_CLIENT_ID` variable and the `PLUGINS_APP_PRIVATE_KEY` secret. The
+marketplace file there must list `helix` at `./plugins/helix`. Publishing refuses
+to change the content of a version already published or to replace it with an
+older one. This
 repository's own marketplace (`helix@helix`) stays in service; the organization
 marketplace is the one to standardize on.
 
